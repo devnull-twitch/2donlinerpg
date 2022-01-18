@@ -3,8 +3,18 @@ using System;
 
 public class PlayerClient : Node
 {
-    public override void _Ready()
+    public string Token;
+
+    private string ip;
+
+    private int port;
+
+    public void StartWithToken(string token, string ip, int port)
     {
+        this.Token = token;
+        this.ip = ip;
+        this.port = port;
+
         foreach (string arg in OS.GetCmdlineArgs())
         {
             if (arg == "--server")
@@ -23,7 +33,7 @@ public class PlayerClient : Node
         GD.PrintS("Starting Client!\n");
 
         NetworkedMultiplayerENet peer = new NetworkedMultiplayerENet();
-        var error = peer.CreateClient("127.0.0.1", 50123);
+        var error = peer.CreateClient(ip, port);
         if (error != Error.Ok) 
         {
             GD.PrintErr(error);
