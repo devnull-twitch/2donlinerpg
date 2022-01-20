@@ -44,7 +44,7 @@ public class Teleporter : Area2D
 
         HTTPRequest req = GetNode<HTTPRequest>("HTTPRequest");
         req.Connect("request_completed", this, nameof(DoChangeScene));
-        req.Request($"http://127.0.0.1:8082/game/change_scene?targte_scene={TargetScene}", requestHeaders, false, HTTPClient.Method.Post, ""); 
+        req.Request($"http://127.0.0.1:8082/game/change_scene?target_scene={TargetScene}", requestHeaders, false, HTTPClient.Method.Post, ""); 
     }
 
     public void DoChangeScene(int result, int response_code, string[] headers, byte[] body)
