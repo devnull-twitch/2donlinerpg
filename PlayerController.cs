@@ -58,7 +58,8 @@ public class PlayerController : Node
 
         if (Input.IsActionJustPressed("inventory_toggle"))
         {
-            WindowDialog inventoryPanel = GetNode<WindowDialog>("/root/World/UiLayer/Inventory");
+            Node sceneRootNode = GetTree().Root.GetChild(0);
+            WindowDialog inventoryPanel = sceneRootNode.GetNode<WindowDialog>("UiLayer/Inventory");
             if (inventoryPanel.Visible)
             {
                 inventoryPanel.Hide();

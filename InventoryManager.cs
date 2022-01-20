@@ -38,7 +38,8 @@ public class InventoryManager : Node
         }
         else
         {
-            VBoxContainer inventoryPanel = GetNode<VBoxContainer>("/root/World/UiLayer/Inventory/InventoryListing");
+            Node sceneRootNode = GetTree().Root.GetChild(0);
+            VBoxContainer inventoryPanel = sceneRootNode.GetNode<VBoxContainer>("UiLayer/Inventory/InventoryListing");
             Label newItemName = new Label();
             newItemName.Text = name;
             inventoryPanel.AddChild(newItemName);

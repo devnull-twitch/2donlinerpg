@@ -129,11 +129,13 @@ public class PlayerNetworking : KinematicBody2D
     [Remote]
     public void clientSetStats(int healthVal, int armorVal)
     {
+        Node sceneRootNode = GetTree().Root.GetChild(0);
+
         health = healthVal;
-        GetNode<Label>("/root/World/UiLayer/Resources/Health/Value").Text = $"{health}";
+        sceneRootNode.GetNode<Label>("UiLayer/Resources/Health/Value").Text = $"{health}";
 
         armor = armorVal;
-        GetNode<Label>("/root/World/UiLayer/Resources/Armor/Value").Text = $"{armor}";
+        sceneRootNode.GetNode<Label>("UiLayer/Resources/Armor/Value").Text = $"{armor}";
     }
 
     [Remote]
@@ -152,7 +154,8 @@ public class PlayerNetworking : KinematicBody2D
     [Remote]
     public void clientSetMoney(int money)
     {
-        GetNode<Label>("/root/World/UiLayer/Resources/Money/Value").Text = $"{money}";
+        Node sceneRootNode = GetTree().Root.GetChild(0);
+        sceneRootNode.GetNode<Label>("UiLayer/Resources/Money/Value").Text = $"{money}";
     }
 
     [Remote]

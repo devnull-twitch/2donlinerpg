@@ -31,7 +31,8 @@ public class Enemy : KinematicBody2D
             return;
         }
 
-        nav = GetNode<Navigation2D>("/root/World/Nav");
+        Node sceneRootNode = GetTree().Root.GetChild(0);
+        nav = sceneRootNode.GetNode<Navigation2D>("Nav");
 
         visionArea = GetNode<Area2D>("Vision");
         visionArea.Connect("body_entered", this, nameof(OnPlayerEnteredVision));

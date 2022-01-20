@@ -34,7 +34,8 @@ public class Teleporter : Area2D
 
         GetTree().NetworkPeer = null;
 
-        PlayerClient pc = GetNode<PlayerClient>("/root/World/NetworkManager/PlayerClient");
+        Node sceneRootNode = GetTree().Root.GetChild(0);
+        PlayerClient pc = sceneRootNode.GetNode<PlayerClient>("NetworkManager/PlayerClient");
 
         string[] requestHeaders = new string[1];
         requestHeaders[0] = $"Authorization: Bearer {pc.Token}";
@@ -56,7 +57,8 @@ public class Teleporter : Area2D
             string ip = (string)respData["ip"];
             int port = (int)((Single)respData["port"]);
 
-            PlayerClient pc = GetNode<PlayerClient>("/root/World/NetworkManager/PlayerClient");
+            Node sceneRootNode = GetTree().Root.GetChild(0);
+            PlayerClient pc = sceneRootNode.GetNode<PlayerClient>("NetworkManager/PlayerClient");
 
             PackedScene ps = (PackedScene)ResourceLoader.Load($"res://{scene}.tscn");
             Node sceneNode = ps.Instance();
@@ -64,7 +66,7 @@ public class Teleporter : Area2D
             Node2D mainNode = (Node2D)GetTree().Root.GetChildren()[0];
 
             GetTree().Root.AddChild(sceneNode);
-            sceneNode.GetNode<PlayerClient>("/root/World/NetworkManager/PlayerClient").StartWithToken(pc.Token, ip, port);
+            sceneNode.GetNode<PlayerClient>("NetworkManager/PlayerClient").StartWithToken(pc.Token, ip, port);
 
             GetTree().Root.GetNode<Node2D>(mainNode.Name).Free();
     }
