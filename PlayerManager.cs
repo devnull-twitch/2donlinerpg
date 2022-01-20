@@ -6,17 +6,17 @@ public class PlayerManager : Node
     public void onNetworkPeerDisconnected(int id)
     {
         GD.PrintS("client disconnected!\n", id);
-        Rpc("clientAndServerRemovePlayer");
+        Rpc("clientAndServerRemovePlayer", $"{id}");
     }
 
 
     [RemoteSync]
-    public void clientAndServerRemovePlayer(int playerNetId)
+    public void clientAndServerRemovePlayer(string playerName)
     {
-        Node n = GetNodeOrNull($"{playerNetId}");
+        Node n = GetNodeOrNull(playerName);
         if (n != null) 
         {
-            n.QueueFree();
+            n.Free();
         }
     }
 
