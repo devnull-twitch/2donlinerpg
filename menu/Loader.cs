@@ -111,7 +111,7 @@ public class Loader : Node
         PackedScene ps = (PackedScene)ResourceLoader.Load($"res://{scene}.tscn");
         Node sceneNode = ps.Instance();
         GetTree().Root.AddChild(sceneNode);
-        sceneNode.GetNode<PlayerClient>("/root/World/NetworkManager/PlayerClient").StartWithToken(token, ip, port);
+        sceneNode.GetNode<PlayerClient>("NetworkManager/PlayerClient").StartWithToken(token, ip, port);
         
         GetTree().Root.GetNode<Node2D>("Menu").Free();
     }

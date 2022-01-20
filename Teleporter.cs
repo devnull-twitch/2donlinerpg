@@ -36,7 +36,6 @@ public class Teleporter : Area2D
 
         PlayerClient pc = GetNode<PlayerClient>("/root/World/NetworkManager/PlayerClient");
 
-        HTTPRequest httpRequest = GetNode<HTTPRequest>("PlayRequest");
         string[] requestHeaders = new string[1];
         requestHeaders[0] = $"Authorization: Bearer {pc.Token}";
 
@@ -61,7 +60,12 @@ public class Teleporter : Area2D
 
             PackedScene ps = (PackedScene)ResourceLoader.Load($"res://{scene}.tscn");
             Node sceneNode = ps.Instance();
+
+            Node2D mainNode = (Node2D)GetTree().Root.GetChildren()[0];
+
             GetTree().Root.AddChild(sceneNode);
             sceneNode.GetNode<PlayerClient>("/root/World/NetworkManager/PlayerClient").StartWithToken(pc.Token, ip, port);
+
+            GetTree().Root.GetNode<Node2D>(mainNode.Name).Free();
     }
 }

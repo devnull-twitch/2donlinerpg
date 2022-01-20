@@ -54,7 +54,7 @@ points = PoolVector2Array( 64, 64, 0, 64, 0, 0, 64, 0 )
 } ]
 1/z_index = 0
 
-[node name="World" type="Node2D"]
+[node name="Otherworld" type="Node2D"]
 
 [node name="Teleporter" parent="." instance=ExtResource( 1 )]
 position = Vector2( 530, -294 )

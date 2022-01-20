@@ -67,7 +67,7 @@ radius = 32.0156
 [sub_resource type="RectangleShape2D" id=8]
 extents = Vector2( 32, 32 )
 
-[node name="World" type="Node2D"]
+[node name="Overworld" type="Node2D"]
 
 [node name="Nav" type="Navigation2D" parent="."]
 

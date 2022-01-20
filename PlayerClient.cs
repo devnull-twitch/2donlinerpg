@@ -11,6 +11,8 @@ public class PlayerClient : Node
 
     public void StartWithToken(string token, string ip, int port)
     {
+        GD.Print("StartWithToken called");
+
         this.Token = token;
         this.ip = ip;
         this.port = port;
