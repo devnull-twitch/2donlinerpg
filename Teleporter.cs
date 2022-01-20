@@ -19,26 +19,32 @@ public class Teleporter : Area2D
 
     public void OnPlayerEntered(Node2D body)
     {
-        GD.Print("ping");
-
         if (body is PlayerNetworking)
         {
-            PlayerNetworking p = (PlayerNetworking)body;
-
-            GetTree().NetworkPeer = null;
-
-            PlayerClient pc = GetNode<PlayerClient>("/root/World/NetworkManager/PlayerClient");
-
-            HTTPRequest httpRequest = GetNode<HTTPRequest>("PlayRequest");
-            string[] requestHeaders = new string[1];
-            requestHeaders[0] = $"Authorization: Bearer {pc.Token}";
-
-            GD.Print("teleporter should make request");
-
-            HTTPRequest req = GetNode<HTTPRequest>("HTTPRequest");
-            req.Connect("request_completed", this, nameof(DoChangeScene));
-            req.Request($"http://127.0.0.1:8082/game/change_scene?targte_scene={TargetScene}", requestHeaders, false, HTTPClient.Method.Post, "");   
+            PlayerNetworking pn = (PlayerNetworking)body;
+            int playerNetworkId = int.Parse(pn.Name);
+            RpcId(playerNetworkId, "clientServerChange");
         }
+    }
+
+    [Remote]
+    public void clientServerChange()
+    {
+        GD.Print("ping");
+
+        GetTree().NetworkPeer = null;
+
+        PlayerClient pc = GetNode<PlayerClient>("/root/World/NetworkManager/PlayerClient");
+
+        HTTPRequest httpRequest = GetNode<HTTPRequest>("PlayRequest");
+        string[] requestHeaders = new string[1];
+        requestHeaders[0] = $"Authorization: Bearer {pc.Token}";
+
+        GD.Print("teleporter should make request");
+
+        HTTPRequest req = GetNode<HTTPRequest>("HTTPRequest");
+        req.Connect("request_completed", this, nameof(DoChangeScene));
+        req.Request($"http://127.0.0.1:8082/game/change_scene?targte_scene={TargetScene}", requestHeaders, false, HTTPClient.Method.Post, ""); 
     }
 
     public void DoChangeScene(int result, int response_code, string[] headers, byte[] body)
