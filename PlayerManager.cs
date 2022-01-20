@@ -31,6 +31,7 @@ public class PlayerManager : Node
             {
                 PlayerNetworking on = (PlayerNetworking)o;
                 RpcId(id, "clientCreatePlayer", on.Name);
+                on.RpcId(id, "clientUpdatePlayerPos", on.Position.x, on.Position.y, on.Rotation);
                 on.RpcId(id, "clientSetStats", on.GetHealth(), on.GetArmor());
             }
         }

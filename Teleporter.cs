@@ -32,6 +32,7 @@ public class Teleporter : Area2D
     {
         GD.Print("ping");
 
+        // send message to server that we are about to leave
         GetTree().NetworkPeer = null;
 
         Node sceneRootNode = GetTree().Root.GetChild(0);
