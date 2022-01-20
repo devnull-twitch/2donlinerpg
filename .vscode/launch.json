@@ -31,9 +31,11 @@
             "executable": "${env:GODOT}/Godot_v3.4.2-stable_mono_win64.exe\r",
             "executableArguments": [
                 "--no-window",
-                "--server",
                 "--path",
-                "${workspaceRoot}"
+                "${workspaceRoot}",
+                "overworld.tscn",
+                "--server",
+                "50123"
             ]
         },
         {

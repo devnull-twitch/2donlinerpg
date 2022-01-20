@@ -10,22 +10,25 @@ public class NetworkManager : Node
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        foreach (string arg in OS.GetCmdlineArgs())
+        string[] args = OS.GetCmdlineArgs(); 
+        for (int key = 0; key < args.Length; ++key)
         {
+            string arg = args[key];
             if (arg == "--server")
             {
-                Start();
+                int port = int.Parse(args[key+1]);
+                Start(port);
                 return;
             }
         }
     }
 
-    public void Start()
+    public void Start(int port)
     {
         pm = GetNode<PlayerManager>("PlayerManager");
         em = GetNode<EnemyManager>("EnemyManager");
 
-        startServer();
+        startServer(port);
 
         GetTree().Connect("network_peer_connected", this, nameof(onNetworkPeerConnected));
         GetTree().Connect("network_peer_disconnected", this, nameof(onNetworkPeerDisconnected));
@@ -33,13 +36,13 @@ public class NetworkManager : Node
         GetTree().CallGroup("network_awaiting", "NetworkReady");
     }
 
-    protected void startServer()
+    protected void startServer(int port)
     {
-        GD.PrintS("Starting Server!\n");
+        GD.PrintS($"Starting Server on port {port}!\n");
 
         NetworkedMultiplayerENet peer = new NetworkedMultiplayerENet();
         peer.ServerRelay = false;
-        var error = peer.CreateServer(50123);
+        var error = peer.CreateServer(port);
         if (error != Error.Ok) 
         {
             GD.PrintErr(error);
