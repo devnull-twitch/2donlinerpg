@@ -1,7 +1,7 @@
 # Whenever a push is made to the master branch then run the job
 on: 
   release:
-    types: [published]
+    types: [created]
 
 jobs:
   docker:
@@ -28,7 +28,7 @@ jobs:
           push: true
           labels: |
             org.opencontainers.image.authors=${{ github.repository_owner }}
-            org.opencontainers.image.created=${{ github.event.release.published_at }}
+            org.opencontainers.image.created=${{ github.event.release.created_at }}
             org.opencontainers.image.ref.name=${{ env.GIT_REF }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
