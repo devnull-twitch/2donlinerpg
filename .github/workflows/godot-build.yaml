@@ -19,6 +19,11 @@ jobs:
       # Ensure that you get the entire project history
       with:
         fetch-depth: 0
+    - name: download server binary
+      run: |
+        wget https://downloads.tuxfamily.org/godotengine/3.4.2/mono/Godot_v3.4.2-stable_mono_linux_server_64.zip
+        unzip Godot_v3.4.2-stable_mono_linux_server_64.zip
+        cat export_presets_gh.cfg > export_presets.cfg
     - name: export game
       # Use latest version (see releases for all versions)
       uses: firebelley/godot-export@v3.0.0
