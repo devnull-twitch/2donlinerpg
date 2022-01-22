@@ -5,4 +5,4 @@ if [ $GS_PCK -f ]; then
     exit 1;
 fi
 
-./Godot_v3.4.2-stable_mono_linux_server_64/Godot_v3.4.2-stable_mono_linux_server.64 --main-pack $GS_PCK --no-window $GS_SCENE --server $GS_PORT;
+./2DOnlienRPG.x86_64 $GS_SCENE --server $GS_PORT;
