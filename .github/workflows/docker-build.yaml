@@ -33,4 +33,4 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.version=${{ github.event.release.tag_name }}
-          tags: devnull-twitch/2donlinerpg-server:latest
+          tags: ghcr.io/devnull-twitch/2donlinerpg-server:latest
