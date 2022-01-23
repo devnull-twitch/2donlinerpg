@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/bush.png-2e26c4033a962045fd33552ab7e2846f.stex"
+path="res://.import/Debug.png-8c84788d866abc3a60d8c9f33b2747ea.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://bush.png"
-dest_files=[ "res://.import/bush.png-2e26c4033a962045fd33552ab7e2846f.stex" ]
+source_file="res://graphics/icons/effects/Debug.png"
+dest_files=[ "res://.import/Debug.png-8c84788d866abc3a60d8c9f33b2747ea.stex" ]
 
 [params]
 

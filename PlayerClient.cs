@@ -9,6 +9,32 @@ public class PlayerClient : Node
 
     private int port;
 
+    public override void _Ready()
+    {
+        string[] args = OS.GetCmdlineArgs(); 
+        for (int key = 0; key < args.Length; ++key)
+        {
+            string arg = args[key];
+            if (arg == "--token")
+            {
+                Token = args[key+1];
+            }
+            if (arg == "--gsip")
+            {
+                ip = args[key+1];
+            }
+            if (arg == "--gsport")
+            {
+                port = int.Parse(args[key+1]);
+            }
+        }
+
+        if (ip != "" && port > 0)
+        {
+            StartWithToken(Token, ip, port);
+        }
+    }
+
     public void StartWithToken(string token, string ip, int port)
     {
         GD.Print("StartWithToken called");

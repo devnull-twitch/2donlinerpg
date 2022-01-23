@@ -1,6 +1,10 @@
 using Godot;
 using System;
 
+public interface SkillProcess {
+    Godot.Collections.Array Execute(PlayerSkills skill, PlayerNetworking player, Vector2 targetPos);
+}
+
 public class PlayerSkills : Node
 {
     public int Cooldown;
@@ -9,7 +13,37 @@ public class PlayerSkills : Node
 
     public int MaxRange;
 
+    public SkillProcess Processor;
+
     private bool enabled = true;
+
+    private ShaderMaterial shaderMat;
+
+    private float remainingTimeToReady;
+
+    public override void _Ready()
+    {
+        if (!GetTree().IsNetworkServer())
+        {
+            Node sceneRootNode = GetTree().Root.GetChild(0);
+            ColorRect skillButtonIcon = sceneRootNode.GetNode<ColorRect>($"UiLayer/BottomRow/SkillList/{Name}_button/ColorRect");
+            shaderMat = (ShaderMaterial)skillButtonIcon.Material;
+        }
+    }
+
+    public override void _Process(float delta)
+    {
+        if (!GetTree().IsNetworkServer())
+        {
+            if (remainingTimeToReady > 0)
+            {
+                remainingTimeToReady -= delta;
+                float percentage = (Cooldown - remainingTimeToReady) / Cooldown;
+                percentage = Math.Max(0, Math.Min(1, percentage));
+                shaderMat.SetShaderParam("ReadyPercentage", percentage);
+            }
+        }
+    }
 
     public bool Trigger(PlayerNetworking player, Vector2 targetPos)
     {
@@ -26,26 +60,23 @@ public class PlayerSkills : Node
             return false;
         }
 
-        float interpolationWeight = MaxRange / dis;
-        Vector2 pointAtMaxRange = player.GlobalPosition.LinearInterpolate(targetPos, interpolationWeight);
+        Godot.Collections.Array enemies = Processor.Execute(this, player, targetPos);
 
-        Physics2DDirectSpaceState spaceState = player.GetWorld2d().DirectSpaceState;
-        Godot.Collections.Dictionary result = spaceState.IntersectRay(
-            player.GlobalPosition,
-            pointAtMaxRange,
-            new Godot.Collections.Array { player },
-            GetParent<PlayerNetworking>().CollisionMask
-        );
-
-        if (result.Count > 0)
+        foreach (Node2D n in enemies)
         {
-            Godot.Object other = (Godot.Object)result["collider"];
-            if (other is Enemy)
+            if (n is Enemy)
             {
-                Enemy targetEnemy = (Enemy)other;
+                Enemy targetEnemy = (Enemy)n;
                 targetEnemy.SubHealth(Damage);
                 Vector2 enemyGP = targetEnemy.GlobalPosition;
-                player.Rpc("clientPlayerEffect", Name, enemyGP.x, enemyGP.y);
+                
+                Node sceneRootNode = GetTree().Root.GetChild(0);
+                EffectManager effectManager = sceneRootNode.GetNode<EffectManager>("EffectManager");
+                effectManager.Rpc("AddEffect", Name, player.GlobalPosition.x, player.GlobalPosition.y, enemyGP.x, enemyGP.y);
+
+                int peerID = int.Parse(GetParent<PlayerNetworking>().Name);
+                RpcId(peerID, "clientCooldownStart");
+                
                 enabled = false;
                 SceneTreeTimer timer = GetTree().CreateTimer(Cooldown);
                 timer.Connect("timeout", this, nameof(cooldownDonw));
@@ -60,19 +91,24 @@ public class PlayerSkills : Node
     {
         GD.Print("cooldown reset");
         enabled = true;
+
+        int peerID = int.Parse(GetParent<PlayerNetworking>().Name);
+        RpcId(peerID, "clientCooldownDone");
     }
 
     [Remote]
     public void clientCooldownStart()
     {
         GD.Print("cooldown reset");
-        enabled = false;
+        shaderMat.SetShaderParam("ReadyPercentage", 0);
+        remainingTimeToReady = Cooldown;
     }
 
     [Remote]
     public void clientCooldownDone()
     {
         GD.Print("cooldown reset");
-        enabled = false;
+        remainingTimeToReady = 0;
+        shaderMat.SetShaderParam("ReadyPercentage", 1);
     }
 }

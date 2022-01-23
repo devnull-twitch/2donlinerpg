@@ -1,11 +1,70 @@
 using Godot;
 using System;
 
+public class LineProcess : SkillProcess 
+{
+    public Godot.Collections.Array Execute(PlayerSkills skill, PlayerNetworking player, Vector2 targetPos)
+    {
+        float dis = player.GlobalPosition.DistanceTo(targetPos);
+        float interpolationWeight = skill.MaxRange / dis;
+        Vector2 pointAtMaxRange = player.GlobalPosition.LinearInterpolate(targetPos, interpolationWeight);
+
+        Physics2DDirectSpaceState spaceState = player.GetWorld2d().DirectSpaceState;
+        Godot.Collections.Dictionary result = spaceState.IntersectRay(
+            player.GlobalPosition,
+            pointAtMaxRange,
+            new Godot.Collections.Array { player },
+            player.CollisionMask
+        );
+
+        Godot.Collections.Array enemies = new Godot.Collections.Array();
+
+        if (result.Count > 0)
+        {
+            Godot.Object other = (Godot.Object)result["collider"];
+            if (other is Enemy)
+            {
+                enemies.Add(other);
+            }
+        }
+
+        return enemies;
+    }
+}
+
+public class AreaOfEffect : SkillProcess 
+{
+    public Godot.Collections.Array Execute(PlayerSkills skill, PlayerNetworking player, Vector2 targetPos)
+    {
+        Physics2DDirectSpaceState spaceState = player.GetWorld2d().DirectSpaceState;
+
+        Physics2DShapeQueryParameters query = new Physics2DShapeQueryParameters();
+        CircleShape2D queryShape = new CircleShape2D();
+        queryShape.Radius = 100;
+        query.SetShape(queryShape);
+        query.Transform = new Transform2D(new Vector2(1, 0), new Vector2(0, 1), targetPos);
+        Godot.Collections.Array allInArea = spaceState.IntersectShape(query);
+
+        Godot.Collections.Array enemies = new Godot.Collections.Array();
+
+        foreach (Godot.Collections.Dictionary result in allInArea)
+        {
+            Godot.Object other = (Godot.Object)result["collider"];
+            if (other is Enemy)
+            {
+                enemies.Add(other);
+            }
+        }
+
+        GD.Print($"Enemies in Area {enemies.Count}");
+        return enemies;
+    }
+}
+
 public class PlayerNetworking : KinematicBody2D
 {
     public const string Skill1Identifier = "skill1";
-
-    private bool isServer;
+    public const string Skill2Identifier = "skill2";
 
     private Vector2 velocity = new Vector2(0, 0);
 
@@ -19,15 +78,9 @@ public class PlayerNetworking : KinematicBody2D
 
     public override void _Ready()
     {
-        foreach (string arg in OS.GetCmdlineArgs())
-        {
-            if (arg == "--server")
-            {
-                isServer = true;
-            }
-        }
+        GD.Print($"PN thoughts about beeing a server = {GetTree().IsNetworkServer()}");
 
-        if (!isServer)
+        if (!GetTree().IsNetworkServer())
         {
             if(int.Parse(this.Name) == GetTree().GetNetworkUniqueId())
             {
@@ -44,7 +97,7 @@ public class PlayerNetworking : KinematicBody2D
             }
         }
 
-        if (isServer)
+        if (GetTree().IsNetworkServer())
         {
             // make nodes for all player skills
             createSkills();
@@ -60,13 +113,23 @@ public class PlayerNetworking : KinematicBody2D
         skill1.Cooldown = 5;
         skill1.Damage = 10;
         skill1.MaxRange = 500;
+        skill1.Processor = new LineProcess();
+
+        Node p2 = ps.Instance();
+        PlayerSkills skill2 = (PlayerSkills)p2;
+        skill2.Name = Skill2Identifier;
+        skill2.Cooldown = 10;
+        skill2.Damage = 100;
+        skill2.MaxRange = 500;
+        skill2.Processor = new AreaOfEffect();
 
         AddChild(skill1);
+        AddChild(skill2);
     }
 
     public override void _PhysicsProcess(float delta)
     {
-        if (!isServer)
+        if (!GetTree().IsNetworkServer())
         {
             return;
         }
@@ -166,19 +229,17 @@ public class PlayerNetworking : KinematicBody2D
         Rpc("clientUpdatePlayerPos", Position.x, Position.y, Rotation);
 
         int triggerPlayerID = GetTree().GetRpcSenderId();
+        GD.Print($"User {Name} uses {skillName} rotation {GlobalRotation}");
 
         switch (skillName)
         {
             case PlayerNetworking.Skill1Identifier:
-                GD.Print($"User {Name} uses {skillName} rotation {GlobalRotation}");
-                bool hasHit = GetNode<PlayerSkills>(Skill1Identifier).Trigger(this, target);
+                GetNode<PlayerSkills>(Skill1Identifier).Trigger(this, target);
+                break;
+
+            case PlayerNetworking.Skill2Identifier:
+                GetNode<PlayerSkills>(Skill2Identifier).Trigger(this, target);
                 break;
         }
-    }
-
-    [Remote]
-    public void clientPlayerEffect(string skillName, float x, float y)
-    {
-        GD.Print($"Player {Name} casted {skillName} at X={x} Y={y}");
     }
 }

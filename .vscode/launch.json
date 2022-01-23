@@ -48,7 +48,11 @@
             "executableArguments": [
                 "--path",
                 "${workspaceRoot}",
-                "${command:SelectLaunchScene}"
+                "${command:SelectLaunchScene}",
+                "--gsip",
+                "127.0.0.1",
+                "--gsport",
+                "50123"
             ]
         },
         {

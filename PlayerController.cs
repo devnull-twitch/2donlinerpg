@@ -44,6 +44,18 @@ public class PlayerController : Node
             }
         }
 
+        if (Input.IsActionJustReleased("skill_2"))
+        {
+            if (currentSkill == PlayerNetworking.Skill2Identifier)
+            {
+                currentSkill = "";
+            }
+            else
+            {
+                currentSkill = PlayerNetworking.Skill2Identifier;
+            }
+        }
+
         if (Input.IsActionJustPressed("skill_use"))
         {
             if (currentSkill != "")

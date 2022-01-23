@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://graphics/icons/effects/Lightning.png" type="Texture" id=1]
+
+[node name="LightningEffect" type="Line2D"]
+points = PoolVector2Array( 0, 0, 634, 214 )
+width = 50.0
+default_color = Color( 1, 1, 1, 1 )
+texture = ExtResource( 1 )
+texture_mode = 1
