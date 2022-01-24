@@ -13,6 +13,10 @@ script = ExtResource( 1 )
 
 [node name="PlayRequest" type="HTTPRequest" parent="Loader"]
 
+[node name="RegistrationRequest" type="HTTPRequest" parent="Loader"]
+
+[node name="ChracterCreateRequest" type="HTTPRequest" parent="Loader"]
+
 [node name="UiLayer" type="CanvasLayer" parent="."]
 
 [node name="CenterContainer" type="CenterContainer" parent="UiLayer"]
@@ -23,47 +27,142 @@ __meta__ = {
 }
 
 [node name="LoginBox" type="VBoxContainer" parent="UiLayer/CenterContainer"]
-margin_left = 477.0
-margin_top = 227.0
-margin_right = 547.0
-margin_bottom = 373.0
+margin_left = 412.0
+margin_top = 215.0
+margin_right = 612.0
+margin_bottom = 385.0
 
 [node name="Headline" type="Label" parent="UiLayer/CenterContainer/LoginBox"]
-margin_right = 70.0
+margin_right = 200.0
 margin_bottom = 30.0
-rect_min_size = Vector2( 0, 30 )
+rect_min_size = Vector2( 200, 30 )
 text = "Login"
 
 [node name="UsernameLabel" type="Label" parent="UiLayer/CenterContainer/LoginBox"]
 margin_top = 34.0
-margin_right = 70.0
+margin_right = 200.0
 margin_bottom = 48.0
 text = "Username:"
 
 [node name="UsernameInput" type="LineEdit" parent="UiLayer/CenterContainer/LoginBox"]
 margin_top = 52.0
-margin_right = 70.0
+margin_right = 200.0
 margin_bottom = 76.0
 
 [node name="PasswordLabel" type="Label" parent="UiLayer/CenterContainer/LoginBox"]
 margin_top = 80.0
-margin_right = 70.0
+margin_right = 200.0
 margin_bottom = 94.0
 text = "Password:"
 
 [node name="PasswordInput" type="LineEdit" parent="UiLayer/CenterContainer/LoginBox"]
 margin_top = 98.0
-margin_right = 70.0
+margin_right = 200.0
 margin_bottom = 122.0
 
 [node name="LoginBtn" type="Button" parent="UiLayer/CenterContainer/LoginBox"]
 margin_top = 126.0
-margin_right = 70.0
+margin_right = 200.0
 margin_bottom = 146.0
 text = "Login"
 
+[node name="SwitchRegBtn" type="Button" parent="UiLayer/CenterContainer/LoginBox"]
+margin_top = 150.0
+margin_right = 200.0
+margin_bottom = 170.0
+text = "=> Registration"
+
+[node name="RegistrationBox" type="VBoxContainer" parent="UiLayer/CenterContainer"]
+visible = false
+margin_left = 412.0
+margin_top = 238.0
+margin_right = 612.0
+margin_bottom = 362.0
+
+[node name="Headline" type="Label" parent="UiLayer/CenterContainer/RegistrationBox"]
+margin_right = 200.0
+margin_bottom = 30.0
+rect_min_size = Vector2( 200, 30 )
+text = "Registration"
+
+[node name="UsernameLabel" type="Label" parent="UiLayer/CenterContainer/RegistrationBox"]
+margin_top = 34.0
+margin_right = 200.0
+margin_bottom = 48.0
+text = "Username"
+
+[node name="UsernameInput" type="LineEdit" parent="UiLayer/CenterContainer/RegistrationBox"]
+margin_top = 52.0
+margin_right = 200.0
+margin_bottom = 76.0
+
+[node name="RegBtn" type="Button" parent="UiLayer/CenterContainer/RegistrationBox"]
+margin_top = 80.0
+margin_right = 200.0
+margin_bottom = 100.0
+text = "Register"
+
+[node name="SwitchLoginBtn" type="Button" parent="UiLayer/CenterContainer/RegistrationBox"]
+margin_top = 104.0
+margin_right = 200.0
+margin_bottom = 124.0
+text = "=> Login"
+
 [node name="CharacterListing" type="VBoxContainer" parent="UiLayer/CenterContainer"]
-margin_left = 512.0
-margin_top = 300.0
-margin_right = 512.0
-margin_bottom = 300.0
+visible = false
+margin_left = 439.0
+margin_top = 290.0
+margin_right = 585.0
+margin_bottom = 310.0
+
+[node name="SwitchCharCreateBtn" type="Button" parent="UiLayer/CenterContainer/CharacterListing"]
+margin_right = 146.0
+margin_bottom = 20.0
+text = "Create new character"
+
+[node name="CharacterCreateBox" type="VBoxContainer" parent="UiLayer/CenterContainer"]
+visible = false
+margin_left = 457.0
+margin_top = 217.0
+margin_right = 566.0
+margin_bottom = 383.0
+
+[node name="Headline" type="Label" parent="UiLayer/CenterContainer/CharacterCreateBox"]
+margin_right = 109.0
+margin_bottom = 30.0
+rect_min_size = Vector2( 0, 30 )
+text = "Chracter creation"
+
+[node name="CharacterName" type="Label" parent="UiLayer/CenterContainer/CharacterCreateBox"]
+margin_top = 34.0
+margin_right = 109.0
+margin_bottom = 48.0
+text = "Name"
+
+[node name="CharacterNameInput" type="LineEdit" parent="UiLayer/CenterContainer/CharacterCreateBox"]
+margin_top = 52.0
+margin_right = 109.0
+margin_bottom = 76.0
+
+[node name="BaseColorLabel" type="Label" parent="UiLayer/CenterContainer/CharacterCreateBox"]
+margin_top = 80.0
+margin_right = 109.0
+margin_bottom = 94.0
+text = "Base Color"
+
+[node name="BaseColorInput" type="ColorPickerButton" parent="UiLayer/CenterContainer/CharacterCreateBox"]
+margin_top = 98.0
+margin_right = 109.0
+margin_bottom = 118.0
+
+[node name="CreateBtn" type="Button" parent="UiLayer/CenterContainer/CharacterCreateBox"]
+margin_top = 122.0
+margin_right = 109.0
+margin_bottom = 142.0
+text = "Create"
+
+[node name="CancelBtn" type="Button" parent="UiLayer/CenterContainer/CharacterCreateBox"]
+margin_top = 146.0
+margin_right = 109.0
+margin_bottom = 166.0
+text = "Cancel"
