@@ -11,23 +11,16 @@ public class PlayerClient : Node
 
     public override void _Ready()
     {
-        string[] args = OS.GetCmdlineArgs(); 
-        for (int key = 0; key < args.Length; ++key)
+        ConfigFile cf = new ConfigFile();
+        Error err = cf.Load("res://networking.cfg");
+        if (err != Error.Ok)
         {
-            string arg = args[key];
-            if (arg == "--token")
-            {
-                Token = args[key+1];
-            }
-            if (arg == "--gsip")
-            {
-                ip = args[key+1];
-            }
-            if (arg == "--gsport")
-            {
-                port = int.Parse(args[key+1]);
-            }
+            GD.Print($"unable to parse networking.cfg: {err}");
+            return;
         }
+
+        ip = (string)cf.GetValue("gameserver", "ip");
+        port = (int)cf.GetValue("gameserver", "port");
 
         if (ip != "" && port > 0)
         {

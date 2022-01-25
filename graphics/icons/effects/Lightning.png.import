@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/Lightning.png-a980e91f9e9126244b78cc83412a22e3.stex"
+path="res://.import/lightning.png-83249cecf1c0de3cf74be94bed8b8cfd.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://graphics/icons/effects/Lightning.png"
-dest_files=[ "res://.import/Lightning.png-a980e91f9e9126244b78cc83412a22e3.stex" ]
+source_file="res://graphics/icons/effects/lightning.png"
+dest_files=[ "res://.import/lightning.png-83249cecf1c0de3cf74be94bed8b8cfd.stex" ]
 
 [params]
 
@@ -19,7 +19,7 @@ compress/lossy_quality=0.7
 compress/hdr_mode=0
 compress/bptc_ldr=0
 compress/normal_map=0
-flags/repeat=0
+flags/repeat=1
 flags/filter=true
 flags/mipmaps=false
 flags/anisotropic=false

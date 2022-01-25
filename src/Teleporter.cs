@@ -30,13 +30,19 @@ public class Teleporter : Area2D
     [Remote]
     public void clientServerChange()
     {
-        GD.Print("ping");
+        ConfigFile cf = new ConfigFile();
+        Error err = cf.Load("res://networking.cfg");
+        if (err != Error.Ok)
+        {
+            GD.Print($"unable to parse networking.cfg: {err}");
+            return;
+        }
+        string baseURL = (string)cf.GetValue("gameapi", "base_url");
 
         // send message to server that we are about to leave
         GetTree().NetworkPeer = null;
 
-        Node sceneRootNode = GetTree().Root.GetChild(0);
-        PlayerClient pc = sceneRootNode.GetNode<PlayerClient>("NetworkManager/PlayerClient");
+        PlayerClient pc = GetNode<PlayerClient>("/root/Game/PlayerClient");
 
         string[] requestHeaders = new string[1];
         requestHeaders[0] = $"Authorization: Bearer {pc.Token}";
@@ -45,7 +51,7 @@ public class Teleporter : Area2D
 
         HTTPRequest req = GetNode<HTTPRequest>("HTTPRequest");
         req.Connect("request_completed", this, nameof(DoChangeScene));
-        req.Request($"http://127.0.0.1:8082/game/change_scene?target_scene={TargetScene}", requestHeaders, false, HTTPClient.Method.Post, ""); 
+        req.Request($"{baseURL}/game/change_scene?target_scene={TargetScene}", requestHeaders, false, HTTPClient.Method.Post, ""); 
     }
 
     public void DoChangeScene(int result, int response_code, string[] headers, byte[] body)
@@ -58,17 +64,15 @@ public class Teleporter : Area2D
             string ip = (string)respData["ip"];
             int port = (int)((Single)respData["port"]);
 
-            Node sceneRootNode = GetTree().Root.GetChild(0);
-            PlayerClient pc = sceneRootNode.GetNode<PlayerClient>("NetworkManager/PlayerClient");
+            PlayerClient pc = GetNode<PlayerClient>("/root/Game/PlayerClient");
 
-            PackedScene ps = (PackedScene)ResourceLoader.Load($"res://{scene}.tscn");
+            PackedScene ps = (PackedScene)ResourceLoader.Load($"res://worlds/{scene}.tscn");
             Node sceneNode = ps.Instance();
 
-            Node2D mainNode = (Node2D)GetTree().Root.GetChildren()[0];
+            Node2D mainNode = (Node2D)GetNode<Node2D>("/root/Game/World").GetChild(0);
+            mainNode.Free();
 
             GetTree().Root.AddChild(sceneNode);
-            sceneNode.GetNode<PlayerClient>("NetworkManager/PlayerClient").StartWithToken(pc.Token, ip, port);
-
-            GetTree().Root.GetNode<Node2D>(mainNode.Name).Free();
+            pc.StartWithToken(pc.Token, ip, port);
     }
 }

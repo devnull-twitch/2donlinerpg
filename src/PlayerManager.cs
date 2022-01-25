@@ -40,7 +40,7 @@ public class PlayerManager : Node
         Rpc("clientCreatePlayer", $"{id}");
 
         // create new client
-        PackedScene ps = GD.Load<PackedScene>("res://Player.tscn");
+        PackedScene ps = GD.Load<PackedScene>("res://prefabs/Player.tscn");
         Node p = ps.Instance();
         PlayerNetworking pn = (PlayerNetworking)p;
         pn.Name = $"{id}";
@@ -55,7 +55,7 @@ public class PlayerManager : Node
     [Remote]
     public void clientCreatePlayer(string name)
     {
-        PackedScene ps = GD.Load<PackedScene>("res://Player.tscn");
+        PackedScene ps = GD.Load<PackedScene>("res://prefabs/Player.tscn");
         Node pn = ps.Instance();
         if (pn is PlayerNetworking)
         {

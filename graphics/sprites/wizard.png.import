@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/FloorTilset.png-e7ff6c08bf2f0055d3f4a77cd27ed8d7.stex"
+path="res://.import/wizard.png-8aff572a052ce6122b9d7d09b6114034.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://FloorTilset.png"
-dest_files=[ "res://.import/FloorTilset.png-e7ff6c08bf2f0055d3f4a77cd27ed8d7.stex" ]
+source_file="res://graphics/sprites/wizard.png"
+dest_files=[ "res://.import/wizard.png-8aff572a052ce6122b9d7d09b6114034.stex" ]
 
 [params]
 

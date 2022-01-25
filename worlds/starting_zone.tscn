@@ -1,18 +1,13 @@
-[gd_scene load_steps=19 format=2]
+[gd_scene load_steps=12 format=2]
 
-[ext_resource path="res://Item.cs" type="Script" id=1]
-[ext_resource path="res://Item.png" type="Texture" id=2]
-[ext_resource path="res://bush.png" type="Texture" id=3]
-[ext_resource path="res://FloorTilset.png" type="Texture" id=4]
-[ext_resource path="res://PlayerManager.cs" type="Script" id=5]
-[ext_resource path="res://PlayerClient.cs" type="Script" id=6]
-[ext_resource path="res://EnemySpawner.cs" type="Script" id=7]
-[ext_resource path="res://EnemyManager.cs" type="Script" id=8]
-[ext_resource path="res://NetworkManager.cs" type="Script" id=9]
-[ext_resource path="res://Enemy.tscn" type="PackedScene" id=10]
+[ext_resource path="res://prefabs/Bush.tscn" type="PackedScene" id=3]
+[ext_resource path="res://graphics/sprites/FloorTilset.png" type="Texture" id=4]
+[ext_resource path="res://src/PlayerManager.cs" type="Script" id=5]
+[ext_resource path="res://src/EnemySpawner.cs" type="Script" id=7]
+[ext_resource path="res://src/EnemyManager.cs" type="Script" id=8]
+[ext_resource path="res://src/NetworkManager.cs" type="Script" id=9]
+[ext_resource path="res://prefabs/Enemy.tscn" type="PackedScene" id=10]
 [ext_resource path="res://prefabs/Teleporter.tscn" type="PackedScene" id=11]
-[ext_resource path="res://prefabs/EffectManager.tscn" type="PackedScene" id=12]
-[ext_resource path="res://gui/UiLayer.tscn" type="PackedScene" id=13]
 
 [sub_resource type="NavigationPolygon" id=4]
 vertices = PoolVector2Array( 64, 64, 0, 64, 0, 0, 64, 0 )
@@ -59,15 +54,7 @@ points = PoolVector2Array( 64, 64, 0, 64, 0, 0, 64, 0 )
 } ]
 1/z_index = 0
 
-[sub_resource type="CircleShape2D" id=7]
-radius = 32.0156
-
-[sub_resource type="RectangleShape2D" id=8]
-extents = Vector2( 32, 32 )
-
 [node name="Overworld" type="Node2D"]
-
-[node name="EffectManager" parent="." instance=ExtResource( 12 )]
 
 [node name="Nav" type="Navigation2D" parent="."]
 
@@ -80,39 +67,12 @@ tile_data = PoolIntArray( -524301, 0, 0, -524300, 0, 0, -524299, 0, 0, -524298, 
 
 [node name="Teleporter" parent="." instance=ExtResource( 11 )]
 position = Vector2( -544, -290 )
-TargetScene = "otherworld"
+TargetScene = "world_1"
 
-[node name="BushA" type="StaticBody2D" parent="."]
-position = Vector2( 210, -150 )
-
-[node name="Sprite" type="Sprite" parent="BushA"]
-scale = Vector2( 0.2, 0.2 )
-texture = ExtResource( 3 )
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="BushA"]
-shape = SubResource( 7 )
-
-[node name="Item" type="Area2D" parent="." groups=["network_awaiting"]]
-position = Vector2( 421, 243 )
-script = ExtResource( 1 )
-__meta__ = {
-"_edit_group_": true
-}
-ItemName = "Some test"
-
-[node name="Sprite" type="Sprite" parent="Item"]
-texture = ExtResource( 2 )
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Item"]
-shape = SubResource( 8 )
-
-[node name="UiLayer" parent="." instance=ExtResource( 13 )]
+[node name="BushA" parent="." instance=ExtResource( 3 )]
 
 [node name="NetworkManager" type="Node" parent="."]
 script = ExtResource( 9 )
-
-[node name="PlayerClient" type="Node" parent="NetworkManager"]
-script = ExtResource( 6 )
 
 [node name="PlayerManager" type="Node" parent="NetworkManager"]
 script = ExtResource( 5 )

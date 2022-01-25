@@ -106,7 +106,7 @@ public class PlayerNetworking : KinematicBody2D
 
     public void createSkills()
     {
-        PackedScene ps = GD.Load<PackedScene>("res://Skill.tscn");
+        PackedScene ps = GD.Load<PackedScene>("res://prefabs/Skill.tscn");
         Node p = ps.Instance();
         PlayerSkills skill1 = (PlayerSkills)p;
         skill1.Name = Skill1Identifier;
@@ -192,13 +192,11 @@ public class PlayerNetworking : KinematicBody2D
     [Remote]
     public void clientSetStats(int healthVal, int armorVal)
     {
-        Node sceneRootNode = GetTree().Root.GetChild(0);
-
         health = healthVal;
-        sceneRootNode.GetNode<Label>("UiLayer/Resources/Health/Value").Text = $"{health}";
+        GetNode<Label>("/root/Game/UiLayer/Resources/Health/Value").Text = $"{health}";
 
         armor = armorVal;
-        sceneRootNode.GetNode<Label>("UiLayer/Resources/Armor/Value").Text = $"{armor}";
+        GetNode<Label>("/root/Game/UiLayer/Resources/Armor/Value").Text = $"{armor}";
     }
 
     [Remote]
@@ -217,8 +215,7 @@ public class PlayerNetworking : KinematicBody2D
     [Remote]
     public void clientSetMoney(int money)
     {
-        Node sceneRootNode = GetTree().Root.GetChild(0);
-        sceneRootNode.GetNode<Label>("UiLayer/Resources/Money/Value").Text = $"{money}";
+        GetNode<Label>("/root/Game/UiLayer/Resources/Money/Value").Text = $"{money}";
     }
 
     [Remote]

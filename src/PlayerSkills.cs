@@ -25,8 +25,7 @@ public class PlayerSkills : Node
     {
         if (!GetTree().IsNetworkServer())
         {
-            Node sceneRootNode = GetTree().Root.GetChild(0);
-            ColorRect skillButtonIcon = sceneRootNode.GetNode<ColorRect>($"UiLayer/BottomRow/SkillList/{Name}_button/ColorRect");
+            ColorRect skillButtonIcon = GetNode<ColorRect>($"/root/Game/UiLayer/BottomRow/SkillList/{Name}_button/ColorRect");
             shaderMat = (ShaderMaterial)skillButtonIcon.Material;
         }
     }
@@ -70,8 +69,7 @@ public class PlayerSkills : Node
                 targetEnemy.SubHealth(Damage);
                 Vector2 enemyGP = targetEnemy.GlobalPosition;
                 
-                Node sceneRootNode = GetTree().Root.GetChild(0);
-                EffectManager effectManager = sceneRootNode.GetNode<EffectManager>("EffectManager");
+                EffectManager effectManager = GetNode<EffectManager>("/root/Game/EffectManager");
                 effectManager.Rpc("AddEffect", Name, player.GlobalPosition.x, player.GlobalPosition.y, enemyGP.x, enemyGP.y);
 
                 int peerID = int.Parse(GetParent<PlayerNetworking>().Name);

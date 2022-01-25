@@ -5,11 +5,22 @@ using System.Text;
 
 public class Loader : Node
 {
+    private string baseURL;
     private string token;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
+        ConfigFile cf = new ConfigFile();
+        Error err = cf.Load("res://networking.cfg");
+        if (err != Error.Ok)
+        {
+            GD.Print($"unable to parse networking.cfg: {err}");
+            return;
+        }
+
+        baseURL = (string)cf.GetValue("gameapi", "base_url");
+
         GetNode<Button>("/root/Menu/UiLayer/CenterContainer/LoginBox/LoginBtn").Connect("button_down", this, nameof(DoLogin));
         GetNode<Button>("/root/Menu/UiLayer/CenterContainer/LoginBox/SwitchRegBtn").Connect("button_down", this, nameof(SwitchToReg));
         GetNode<Button>("/root/Menu/UiLayer/CenterContainer/RegistrationBox/RegBtn").Connect("button_down", this, nameof(DoRegistration));
@@ -34,7 +45,7 @@ public class Loader : Node
         string jsonString = JSON.Print(pl);
 
         HTTPRequest httpRequest = GetNode<HTTPRequest>("LoginRequest");
-        httpRequest.Request("http://127.0.0.1:8082/account/login", null, false, HTTPClient.Method.Post, jsonString);
+        httpRequest.Request($"{baseURL}/account/login", null, false, HTTPClient.Method.Post, jsonString);
     }
 
     public void SwitchToReg()
@@ -69,7 +80,7 @@ public class Loader : Node
         string jsonString = JSON.Print(pl);
 
         HTTPRequest httpRequest = GetNode<HTTPRequest>("RegistrationRequest");
-        httpRequest.Request("http://127.0.0.1:8082/account", null, false, HTTPClient.Method.Post, jsonString);
+        httpRequest.Request($"{baseURL}/account", null, false, HTTPClient.Method.Post, jsonString);
     }
 
     public void DoCreateCharacter()
@@ -83,7 +94,7 @@ public class Loader : Node
         HTTPRequest httpRequest = GetNode<HTTPRequest>("ChracterCreateRequest");
         string[] requestHeaders = new string[1];
         requestHeaders[0] = $"Authorization: Bearer {token}";
-        httpRequest.Request("http://127.0.0.1:8082/game/characters", requestHeaders, false, HTTPClient.Method.Post, jsonString);
+        httpRequest.Request($"{baseURL}/game/characters", requestHeaders, false, HTTPClient.Method.Post, jsonString);
     }
 
     public void OnLoginRequestCompleted(int result, int response_code, string[] headers, byte[] body)
@@ -100,7 +111,7 @@ public class Loader : Node
         HTTPRequest httpRequest = GetNode<HTTPRequest>("CharacterRequest");
         string[] requestHeaders = new string[1];
         requestHeaders[0] = $"Authorization: Bearer {token}";
-        httpRequest.Request("http://127.0.0.1:8082/game/characters", requestHeaders, false, HTTPClient.Method.Get, "");
+        httpRequest.Request($"{baseURL}/game/characters", requestHeaders, false, HTTPClient.Method.Get, "");
     }
 
     public void OnRegistrationRequestCompleted(int result, int response_code, string[] headers, byte[] body)
@@ -160,7 +171,7 @@ public class Loader : Node
         HTTPRequest httpRequest = GetNode<HTTPRequest>("CharacterRequest");
         string[] requestHeaders = new string[1];
         requestHeaders[0] = $"Authorization: Bearer {token}";
-        httpRequest.Request("http://127.0.0.1:8082/game/characters", requestHeaders, false, HTTPClient.Method.Get, "");
+        httpRequest.Request($"{baseURL}/game/characters", requestHeaders, false, HTTPClient.Method.Get, "");
     }
 
     public void OnCharacterSelected(string name)
@@ -173,7 +184,7 @@ public class Loader : Node
         pl["Character"] = name;
         string jsonString = JSON.Print(pl);
 
-        httpRequest.Request($"http://127.0.0.1:8082/game/play?selected_char={name}", requestHeaders, false, HTTPClient.Method.Post, jsonString);
+        httpRequest.Request($"{baseURL}/game/play?selected_char={name}", requestHeaders, false, HTTPClient.Method.Post, jsonString);
     }
 
     public void OnPlayRequestCompleted(int result, int response_code, string[] headers, byte[] body)
@@ -192,10 +203,14 @@ public class Loader : Node
         string ip = (string)respData["ip"];
         int port = (int)((Single)respData["port"]);
 
-        PackedScene ps = (PackedScene)ResourceLoader.Load($"res://{scene}.tscn");
+        PackedScene packedGS = (PackedScene)ResourceLoader.Load($"res://scenes/Game.tscn");
+        Node gameScene = packedGS.Instance();
+        GetTree().Root.AddChild(gameScene);
+
+        PackedScene ps = (PackedScene)ResourceLoader.Load($"res://worlds/{scene}.tscn");
         Node sceneNode = ps.Instance();
-        GetTree().Root.AddChild(sceneNode);
-        sceneNode.GetNode<PlayerClient>("NetworkManager/PlayerClient").StartWithToken(token, ip, port);
+        GetNode<Node2D>("/root/Game/World").AddChild(sceneNode);
+        gameScene.GetNode<PlayerClient>("PlayerClient").StartWithToken(token, ip, port);
         
         GetTree().Root.GetNode<Node2D>("Menu").Free();
     }
