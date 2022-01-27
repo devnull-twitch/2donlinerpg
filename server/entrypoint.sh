@@ -5,4 +5,4 @@ if [ $GS_PCK -f ]; then
     exit 1;
 fi
 
-./2DOnlienRPG.x86_64 $GS_SCENE --server $GS_PORT;
+./2DOnlienRPG.x86_64 scenes/Game.tscn --world $GS_SCENE --server $GS_PORT;

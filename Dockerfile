@@ -1,7 +1,7 @@
 FROM debian:buster
 
 ENV GS_PCK="2DOnlienRPG.pck"
-ENV GS_SCENE="overworld.tscn"
+ENV GS_SCENE="starting_zone"
 ENV GS_PORT=50123
 
 RUN apt update && \
