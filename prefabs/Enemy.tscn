@@ -72,5 +72,5 @@ shape = SubResource( 10 )
 scale = Vector2( 0.2, 0.2 )
 frames = SubResource( 17 )
 animation = "idle"
-frame = 3
+frame = 2
 playing = true
