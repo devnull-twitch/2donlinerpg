@@ -10,6 +10,10 @@ public class PlayerController : Node
 
     public override void _Process(float delta)
     {
+        if (GetTree().NetworkPeer == null) {
+            return;
+        }
+        
         Vector2 newVec = new Vector2();
 
         if (Input.IsActionPressed("move_right"))

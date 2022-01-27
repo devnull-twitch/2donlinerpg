@@ -21,6 +21,8 @@ public class PlayerClient : Node
             return;
         }
 
+        GetTree().Connect("connected_to_server", this, nameof(onConnectedToServer));
+
         ip = (string)cf.GetValue("gameserver", "ip");
         port = (int)cf.GetValue("gameserver", "port");
 
@@ -46,8 +48,6 @@ public class PlayerClient : Node
                 return;
             }
         }
-
-        GetTree().Connect("connected_to_server", this, nameof(onConnectedToServer));
 
         startClient();
     }
