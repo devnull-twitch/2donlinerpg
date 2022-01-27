@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gameserver-starting-deployment
+  labels:
+    app: gameserver
+spec:
+  selector:
+    matchLabels:
+      app: gameserver
+      gamezone: starting-zone
+  template:
+    metadata:
+      labels:
+        app: gameserver
+        gamezone: starting-zone
+    spec:
+      containers:
+        - 
+          name: gameserver
+          image: ghcr.io/devnull-twitch/2donlinerpg-server:latest
+          imagePullPolicy: Always
+          tty: true
+          ports:
+            - 
+              containerPort: 50123
+              protocol: UDP
+          env:
+            - 
+              name: GS_SCENE
+              value: "starting_zone"
+            -
+              name: GS_PORT
+              value: "50123"
+      imagePullSecrets:
+        - name: dockerconfigjson-ghcr
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gameserver-world-1-deployment
+  labels:
+    app: gameserver
+spec:
+  selector:
+    matchLabels:
+      app: gameserver
+      gamezone: world-1
+  template:
+    metadata:
+      labels:
+        app: gameserver
+        gamezone: world-1
+    spec:
+      containers:
+        - 
+          name: gameserver
+          image: ghcr.io/devnull-twitch/2donlinerpg-server:latest
+          imagePullPolicy: Always
+          ports:
+            - 
+              containerPort: 50123
+              protocol: UDP
+          env:
+            - 
+              name: GS_SCENE
+              value: "world_1"
+            -
+              name: GS_PORT
+              value: "50123"
+      imagePullSecrets:
+        - name: dockerconfigjson-ghcr

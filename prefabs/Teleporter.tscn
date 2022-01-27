@@ -1,14 +1,19 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://src/Teleporter.cs" type="Script" id=1]
+[ext_resource path="res://graphics/sprites/teleporter.png" type="Texture" id=2]
 
 [sub_resource type="RectangleShape2D" id=8]
-extents = Vector2( 44.5, 38.5 )
+extents = Vector2( 40, 38.5 )
 
 [node name="Teleporter" type="Area2D" groups=["network_awaiting"]]
 script = ExtResource( 1 )
 
+[node name="Sprite" type="Sprite" parent="."]
+texture = ExtResource( 2 )
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2( 1, 0 )
 shape = SubResource( 8 )
 
 [node name="HTTPRequest" type="HTTPRequest" parent="."]

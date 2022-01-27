@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: gameserver-starting-zone
+  labels:
+    gamezone: starting-zone
+    app: gameserver
+spec:
+  type: NodePort
+  selector:
+    gamezone: starting-zone
+    app: gameserver
+  ports:
+    - name: godot
+      port: 50123
+      protocol: UDP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gameserver-world-1
+  labels:
+    gamezone: world-1
+    app: gameserver
+spec:
+  type: NodePort
+  selector:
+    gamezone: world-1
+    app: gameserver
+  ports:
+    - name: godot
+      port: 50123
+      protocol: UDP

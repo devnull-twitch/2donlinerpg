@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://src/EnemySpawner.cs" type="Script" id=1]
+[ext_resource path="res://prefabs/Enemy.tscn" type="PackedScene" id=2]
+
+[node name="Spawner" type="Node2D" groups=["network_awaiting"]]
+position = Vector2( 385, 292 )
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_group_": true
+}
+EnemyTemplate = ExtResource( 2 )
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 10.0
+autostart = true

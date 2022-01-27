@@ -5,6 +5,8 @@ public class PlayerClient : Node
 {
     public string Token;
 
+    public string CharName;
+
     private string ip;
 
     private int port;
@@ -24,14 +26,15 @@ public class PlayerClient : Node
 
         if (ip != "" && port > 0)
         {
-            StartWithToken(Token, ip, port);
+            StartWithToken(Token, "Tester", ip, port);
         }
     }
 
-    public void StartWithToken(string token, string ip, int port)
+    public void StartWithToken(string token, string charName, string ip, int port)
     {
         GD.Print("StartWithToken called");
 
+        this.CharName = charName;
         this.Token = token;
         this.ip = ip;
         this.port = port;

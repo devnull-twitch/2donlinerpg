@@ -51,14 +51,16 @@ public class Teleporter : Area2D
 
         HTTPRequest req = GetNode<HTTPRequest>("HTTPRequest");
         req.Connect("request_completed", this, nameof(DoChangeScene));
-        req.Request($"{baseURL}/game/change_scene?target_scene={TargetScene}", requestHeaders, false, HTTPClient.Method.Post, ""); 
+        req.Request($"{baseURL}/game/play?target_scene={TargetScene}&selected_char={pc.CharName}", requestHeaders, false, HTTPClient.Method.Post, ""); 
     }
 
     public void DoChangeScene(int result, int response_code, string[] headers, byte[] body)
     {
             GD.Print("teleporter request complete");
 
-            JSONParseResult json = JSON.Parse(Encoding.UTF8.GetString(body));
+            string respStr = Encoding.UTF8.GetString(body);
+            GD.Print(respStr);
+            JSONParseResult json = JSON.Parse(respStr);
             Dictionary respData = (Dictionary)json.Result;
             string scene = (string)respData["scene"];
             string ip = (string)respData["ip"];
@@ -68,11 +70,11 @@ public class Teleporter : Area2D
 
             PackedScene ps = (PackedScene)ResourceLoader.Load($"res://worlds/{scene}.tscn");
             Node sceneNode = ps.Instance();
+            GetNode<Node2D>("/root/Game/World").AddChild(sceneNode);
 
             Node2D mainNode = (Node2D)GetNode<Node2D>("/root/Game/World").GetChild(0);
             mainNode.Free();
 
-            GetTree().Root.AddChild(sceneNode);
-            pc.StartWithToken(pc.Token, ip, port);
+            pc.StartWithToken(pc.Token, pc.CharName, ip, port);
     }
 }

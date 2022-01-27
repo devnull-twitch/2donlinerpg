@@ -199,6 +199,7 @@ public class Loader : Node
 
         JSONParseResult json = JSON.Parse(Encoding.UTF8.GetString(body));
         Dictionary respData = (Dictionary)json.Result;
+        string charName = (string)respData["character_name"];
         string scene = (string)respData["scene"];
         string ip = (string)respData["ip"];
         int port = (int)((Single)respData["port"]);
@@ -210,7 +211,7 @@ public class Loader : Node
         PackedScene ps = (PackedScene)ResourceLoader.Load($"res://worlds/{scene}.tscn");
         Node sceneNode = ps.Instance();
         GetNode<Node2D>("/root/Game/World").AddChild(sceneNode);
-        gameScene.GetNode<PlayerClient>("PlayerClient").StartWithToken(token, ip, port);
+        gameScene.GetNode<PlayerClient>("PlayerClient").StartWithToken(token, charName, ip, port);
         
         GetTree().Root.GetNode<Node2D>("Menu").Free();
     }
