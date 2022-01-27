@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=2]
+[gd_scene load_steps=30 format=2]
 
 [ext_resource path="res://graphics/tilemaps/tileset.png" type="Texture" id=1]
 [ext_resource path="res://prefabs/EnemySpawner.tscn" type="PackedScene" id=2]
@@ -33,8 +33,8 @@ polygons = [ PoolIntArray( 0, 1, 2, 3 ) ]
 [sub_resource type="ConvexPolygonShape2D" id=8]
 points = PoolVector2Array( 64, 64, 0, 64, 0, 0, 64, 0 )
 
-[sub_resource type="NavigationPolygon" id=26]
-vertices = PoolVector2Array( 64, 0, 0, 0, 0, 0, 64, 0 )
+[sub_resource type="NavigationPolygon" id=14]
+vertices = PoolVector2Array( 64, 32, 0, 32, 0, 0, 64, 0 )
 polygons = [ PoolIntArray( 0, 1, 2, 3 ) ]
 
 [sub_resource type="ConvexPolygonShape2D" id=9]
@@ -52,12 +52,9 @@ polygons = [ PoolIntArray( 0, 1, 2, 3 ) ]
 vertices = PoolVector2Array( 64, 32, 0, 32, 0, 0, 64, 0 )
 polygons = [ PoolIntArray( 0, 1, 2, 3 ) ]
 
-[sub_resource type="NavigationPolygon" id=27]
-vertices = PoolVector2Array( 64, 0, 0, 0, 0, 0, 64, 0 )
+[sub_resource type="NavigationPolygon" id=18]
+vertices = PoolVector2Array( 64, 32, 0, 32, 0, 0, 64, 0 )
 polygons = [ PoolIntArray( 0, 1, 2, 3 ) ]
-
-[sub_resource type="ConvexPolygonShape2D" id=28]
-points = PoolVector2Array( 64, 64, 0, 64, 0, 32, 64, 32 )
 
 [sub_resource type="NavigationPolygon" id=19]
 vertices = PoolVector2Array( 64, 32, 0, 32, 0, 0, 64, 0 )
@@ -318,7 +315,7 @@ polygons = [ PoolIntArray( 0, 1, 2, 3 ) ]
 15/tile_mode = 0
 15/occluder_offset = Vector2( 0, 0 )
 15/navigation_offset = Vector2( 0, 0 )
-15/navigation = SubResource( 26 )
+15/navigation = SubResource( 14 )
 15/shape_offset = Vector2( 0, 0 )
 15/shape_transform = Transform2D( 1, 0, 0, 1, 0, 0 )
 15/shape = SubResource( 9 )
@@ -413,19 +410,12 @@ polygons = [ PoolIntArray( 0, 1, 2, 3 ) ]
 21/tile_mode = 0
 21/occluder_offset = Vector2( 0, 0 )
 21/navigation_offset = Vector2( 0, 0 )
-21/navigation = SubResource( 27 )
+21/navigation = SubResource( 18 )
 21/shape_offset = Vector2( 0, 0 )
 21/shape_transform = Transform2D( 1, 0, 0, 1, 0, 0 )
-21/shape = SubResource( 28 )
 21/shape_one_way = false
-21/shape_one_way_margin = 1.0
-21/shapes = [ {
-"autotile_coord": Vector2( 0, 0 ),
-"one_way": false,
-"one_way_margin": 1.0,
-"shape": SubResource( 28 ),
-"shape_transform": Transform2D( 1, 0, 0, 1, 0, 0 )
-} ]
+21/shape_one_way_margin = 0.0
+21/shapes = [  ]
 21/z_index = 0
 22/name = "tileset.png 22"
 22/texture = ExtResource( 1 )
