@@ -213,6 +213,6 @@ public class Loader : Node
         GetNode<Node2D>("/root/Game/World").AddChild(sceneNode);
         gameScene.GetNode<PlayerClient>("PlayerClient").StartWithToken(token, charName, ip, port);
         
-        GetTree().Root.GetNode<Node2D>("Menu").Free();
+        GetTree().Root.GetNode<Node2D>("Menu").QueueFree();
     }
 }

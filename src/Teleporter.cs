@@ -66,15 +66,15 @@ public class Teleporter : Area2D
             string ip = (string)respData["ip"];
             int port = (int)((Single)respData["port"]);
 
+            // fetch stuff in current state
+            Node2D mainNode = (Node2D)GetNode<Node2D>("/root/Game/World").GetChild(0);
             PlayerClient pc = GetNode<PlayerClient>("/root/Game/PlayerClient");
 
             PackedScene ps = (PackedScene)ResourceLoader.Load($"res://worlds/{scene}.tscn");
             Node sceneNode = ps.Instance();
             GetNode<Node2D>("/root/Game/World").AddChild(sceneNode);
 
-            Node2D mainNode = (Node2D)GetNode<Node2D>("/root/Game/World").GetChild(0);
-            mainNode.Free();
-
+            mainNode.QueueFree();
             pc.StartWithToken(pc.Token, pc.CharName, ip, port);
     }
 }
