@@ -12,9 +12,10 @@ public class LightningEffect : Line2D
             length += Points[i].DistanceTo(Points[i+1]);
         }
 
-        float scaledTextureWidth = Texture.GetSize().x * (Width / Texture.GetSize().y);
+        Texture subTexture = GetNode<Sprite>("Sprite").Texture;
+        float scaledTextureWidth = subTexture.GetSize().x * (Width / subTexture.GetSize().y);
         int numberOfTextureRepeats = (int)Math.Round(length / scaledTextureWidth);
         float newScaledTextureWidth = length / numberOfTextureRepeats;
-        Width = Texture.GetSize().y * (newScaledTextureWidth / Texture.GetSize().x);
+        Width = subTexture.GetSize().y * (newScaledTextureWidth / subTexture.GetSize().x);
     }
 }
