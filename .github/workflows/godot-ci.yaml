@@ -20,10 +20,12 @@ jobs:
         uses: actions/checkout@v2
         with:
           lfs: true
-      - name: Windows Build
+      - name: Setup
         run: |
-          mkdir -v -p build/windows
-          godot -v --export "Windows Desktop" ../build/windows/$EXPORT_NAME.exe
+          mkdir -v -p build/linux build/windows build/linux-server ~/.local/share/godot/templates
+          mv /root/.local/share/godot/templates/${GODOT_VERSION}.stable.mono ~/.local/share/godot/templates/${GODOT_VERSION}.stable.mono
+      - name: Windows Build
+        run: godot -v --export "Windows Desktop" ../build/windows/$EXPORT_NAME.exe
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
         with:
@@ -40,10 +42,12 @@ jobs:
         uses: actions/checkout@v2
         with:
           lfs: true
-      - name: Linux Build
+      - name: Setup
         run: |
-          mkdir -v -p build/linux
-          godot -v --export "Linux/X11" ../build/linux/$EXPORT_NAME.x86_64
+          mkdir -v -p build/linux build/windows build/linux-server ~/.local/share/godot/templates
+          mv /root/.local/share/godot/templates/${GODOT_VERSION}.stable.mono ~/.local/share/godot/templates/${GODOT_VERSION}.stable.mono
+      - name: Linux Build
+        run: godot -v --export "Linux/X11" ../build/linux/$EXPORT_NAME.x86_64
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
         with:
@@ -62,14 +66,13 @@ jobs:
           lfs: true
       - name: Setup
         run: |
+          mkdir -v -p build/linux build/windows build/linux-server ~/.local/share/godot/templates
+          mv /root/.local/share/godot/templates/${GODOT_VERSION}.stable.mono ~/.local/share/godot/templates/${GODOT_VERSION}.stable.mono
           wget https://downloads.tuxfamily.org/godotengine/3.4.2/mono/Godot_v3.4.2-stable_mono_linux_server_64.zip
-          mkdir -v -p ~/.local/share/godot/templates/${GODOT_VERSION}.stable
-          cp Godot_v3.4.2-stable_mono_linux_server_64/Godot_v3.4.2-stable_mono_linux_server.64 ~/.local/share/godot/templates/${GODOT_VERSION}.stable/linux_x11_64_debug
-          cp Godot_v3.4.2-stable_mono_linux_server_64/Godot_v3.4.2-stable_mono_linux_server.64 ~/.local/share/godot/templates/${GODOT_VERSION}.stable/linux_x11_64_release
+          cp Godot_v3.4.2-stable_mono_linux_server_64/Godot_v3.4.2-stable_mono_linux_server.64 ~/.local/share/godot/templates/${GODOT_VERSION}.stable.mono/linux_x11_64_debug
+          cp Godot_v3.4.2-stable_mono_linux_server_64/Godot_v3.4.2-stable_mono_linux_server.64 ~/.local/share/godot/templates/${GODOT_VERSION}.stable.mono/linux_x11_64_release
       - name: Linux Build
-        run: |
-          mkdir -v -p build/linux-server
-          godot -v --export "Linux/X11" ../build/linux-server/$EXPORT_NAME.server.x86_64
+        run: godot -v --export "Linux/X11" ../build/linux-server/$EXPORT_NAME.server.x86_64
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
         with:
