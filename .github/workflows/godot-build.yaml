@@ -25,8 +25,14 @@ jobs:
     - name: download server binary
       run: |
         wget https://downloads.tuxfamily.org/godotengine/3.4.2/mono/Godot_v3.4.2-stable_mono_linux_server_64.zip
-        unzip Godot_v3.4.2-stable_mono_linux_server_64.zip
+        unzip Godot_v3.4.2-stable_mono_linux_server_64.zip && rm Godot_v3.4.2-stable_mono_linux_server_64.zip
         cat export_presets_gh.cfg | sed "s#__PATH__#`pwd`#" >> export_presets.cfg
+      # Open in editor to fix missing resources in build
+    - name: run editor
+      run: |
+        wget https://downloads.tuxfamily.org/godotengine/3.4.2/mono/Godot_v3.4.2-stable_mono_linux_headless_64.zip
+        unzip Godot_v3.4.2-stable_mono_linux_headless_64.zip && rm Godot_v3.4.2-stable_mono_linux_headless_64.zip
+        Godot_v3.4.2-stable_mono_linux_headless_64/Godot_v3.4.2-stable_mono_linux_headless.64 --editor --build-solutions --quit
     - name: export game
       # Use latest version (see releases for all versions)
       uses: firebelley/godot-export@v3.0.0
