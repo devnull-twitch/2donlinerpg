@@ -22,6 +22,7 @@ jobs:
           lfs: true
       - name: Setup
         run: |
+          cp networking.prod.cfg networking.cfg
           mkdir -v -p build/linux build/windows build/linux-server ~/.local/share/godot/templates
           mv /root/.local/share/godot/templates/${GODOT_VERSION}.stable.mono ~/.local/share/godot/templates/${GODOT_VERSION}.stable.mono
       - name: Windows Build
@@ -44,6 +45,7 @@ jobs:
           lfs: true
       - name: Setup
         run: |
+          cp networking.prod.cfg networking.cfg
           mkdir -v -p build/linux build/windows build/linux-server ~/.local/share/godot/templates
           mv /root/.local/share/godot/templates/${GODOT_VERSION}.stable.mono ~/.local/share/godot/templates/${GODOT_VERSION}.stable.mono
       - name: Linux Build
@@ -66,6 +68,7 @@ jobs:
           lfs: true
       - name: Setup
         run: |
+          cp networking.prod.cfg networking.cfg
           mkdir -v -p build/linux build/windows build/linux-server ~/.local/share/godot/templates
           mv /root/.local/share/godot/templates/${GODOT_VERSION}.stable.mono ~/.local/share/godot/templates/${GODOT_VERSION}.stable.mono
           wget https://downloads.tuxfamily.org/godotengine/3.4.2/mono/Godot_v3.4.2-stable_mono_linux_server_64.zip
