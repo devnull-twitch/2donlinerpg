@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/lightning.png-83249cecf1c0de3cf74be94bed8b8cfd.stex"
+path="res://.import/lightning.png-2df45af56835dcf4c40de4e8a9c5cd24.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://graphics/icons/effects/lightning.png"
-dest_files=[ "res://.import/lightning.png-83249cecf1c0de3cf74be94bed8b8cfd.stex" ]
+source_file="res://graphics/effects/lightning.png"
+dest_files=[ "res://.import/lightning.png-2df45af56835dcf4c40de4e8a9c5cd24.stex" ]
 
 [params]
 
