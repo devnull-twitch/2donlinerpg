@@ -4,8 +4,8 @@
 [ext_resource path="res://gui/UiLayer.tscn" type="PackedScene" id=2]
 [ext_resource path="res://src/PlayerClient.cs" type="Script" id=3]
 [ext_resource path="res://src/Game.cs" type="Script" id=4]
-[ext_resource path="res://prefabs/effects/LightningEffect.tscn" type="PackedScene" id=5]
-[ext_resource path="res://prefabs/effects/Explosion.tscn" type="PackedScene" id=6]
+[ext_resource path="res://prefabs/LightningEffect.tscn" type="PackedScene" id=5]
+[ext_resource path="res://prefabs/Explosion.tscn" type="PackedScene" id=6]
 
 [node name="Game" type="Node"]
 script = ExtResource( 4 )
