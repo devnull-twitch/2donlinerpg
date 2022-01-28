@@ -23,7 +23,6 @@ jobs:
       - name: Windows Build
         run: |
           mkdir -v -p build/windows
-          cd $EXPORT_NAME
           godot -v --export "Windows Desktop" ../build/windows/$EXPORT_NAME.exe
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
@@ -44,7 +43,6 @@ jobs:
       - name: Linux Build
         run: |
           mkdir -v -p build/linux
-          cd $EXPORT_NAME
           godot -v --export "Linux/X11" ../build/linux/$EXPORT_NAME.x86_64
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
@@ -70,11 +68,10 @@ jobs:
           cp Godot_v3.4.2-stable_mono_linux_server_64/Godot_v3.4.2-stable_mono_linux_server.64 ~/.local/share/godot/templates/${GODOT_VERSION}.stable/linux_x11_64_release
       - name: Linux Build
         run: |
-          mkdir -v -p build/linux
-          cd $EXPORT_NAME
-          godot -v --export "Linux/X11" ../build/linux/$EXPORT_NAME.server.x86_64
+          mkdir -v -p build/linux-server
+          godot -v --export "Linux/X11" ../build/linux-server/$EXPORT_NAME.server.x86_64
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
         with:
           name: linux-server
-          path: build/linux
+          path: build/linux-server
