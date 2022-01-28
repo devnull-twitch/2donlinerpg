@@ -22,6 +22,9 @@ public class Enemy : KinematicBody2D
     [Signal]
     delegate void Killed();
 
+    [Export]
+    public LootTable DropTable; 
+
     public override void _Ready()
     {
         isServer = isServer = GetTree().IsNetworkServer();
@@ -88,13 +91,10 @@ public class Enemy : KinematicBody2D
 
     public override void _Process(float delta)
     {
-        if(currentTarget != null)
+        if(currentTarget == null || !currentTarget.IsInsideTree() || currentTarget.IsQueuedForDeletion())
         {
-            if(currentTarget.IsQueuedForDeletion())
-            {
-                currentTarget = null;
-                currentPath = null;
-            }
+            currentTarget = null;
+            currentPath = null;
         }
     }
 
@@ -107,7 +107,16 @@ public class Enemy : KinematicBody2D
 
         if (health <= 0)
         {
+            if (DropTable != null)
+            {
+                Godot.Collections.Array<string> drops = DropTable.RollDrops();
+                foreach(string itemResPath in drops)
+                {
+                    Rpc("allSpawnItem", itemResPath);
+                }
+            }
             Rpc("allRemoveEnemy");
+            
             return;
         }
 
@@ -187,5 +196,18 @@ public class Enemy : KinematicBody2D
         EmitSignal("Killed");
         GD.Print("removed enemy");
         QueueFree();
+    }
+
+    [RemoteSync]
+    public void allSpawnItem(string dropItemResPath)
+    {
+        GD.Print("drop item. Yeah!");
+        PackedScene packedGS = (PackedScene)ResourceLoader.Load(dropItemResPath);
+        Item dropItem = (Item)packedGS.Instance();
+        Node2D mainNode = (Node2D)GetNode<Node2D>("/root/Game/World").GetChild(0);
+        dropItem.GlobalPosition = GlobalPosition;
+        dropItem.ItemName = dropItemResPath;
+        mainNode.AddChild(dropItem);
+        dropItem.NetworkReady();
     }
 }

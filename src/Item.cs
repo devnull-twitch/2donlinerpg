@@ -65,6 +65,7 @@ public class Item : Area2D
 
     public void OnPlayerEntered(Node2D body)
     {
+        GD.Print("Does this even work?");
         if(body is PlayerNetworking && PickupOnEnter)
         {
             PlayerNetworking player = (PlayerNetworking)body;

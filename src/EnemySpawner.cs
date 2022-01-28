@@ -8,7 +8,10 @@ public class EnemySpawner : Node2D
     public Enemy target;
 
     [Export]
-    private Resource EnemyTemplate;
+    public Resource EnemyTemplate;
+
+    [Export]
+    public LootTable DropTable; 
 
     public string Somethging;
 
@@ -50,6 +53,7 @@ public class EnemySpawner : Node2D
             target = (Enemy)ps.Instance();
             AddChild(target);
             target.GlobalPosition = new Vector2(GlobalPosition.x, GlobalPosition.y);
+            target.DropTable = DropTable;
         }
         else
         {

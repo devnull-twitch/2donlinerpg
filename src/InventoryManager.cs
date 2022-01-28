@@ -8,10 +8,14 @@ public class InventoryManager : Node
     [RemoteSync]
     public void clientServerAddItem(string name)
     {
-        PackedScene itemScene = GD.Load<PackedScene>("res://InventoryItem.tscn");
+        PackedScene dropItemScene = GD.Load<PackedScene>(name);
+        Item dropItem = (Item)dropItemScene.Instance();
+
+        PackedScene itemScene = GD.Load<PackedScene>("res://prefabs/InventoryItem.tscn");
         Node itemInstance = itemScene.Instance();
         InventoryItem newItem = (InventoryItem)itemInstance;
         newItem.Name = name;
+        newItem.Texture = dropItem.GetNode<Sprite>("Sprite").Texture;
 
         switch(name)
         {
@@ -38,11 +42,14 @@ public class InventoryManager : Node
         }
         else
         {
-            Node sceneRootNode = GetTree().Root.GetChild(0);
-            VBoxContainer inventoryPanel = sceneRootNode.GetNode<VBoxContainer>("UiLayer/Inventory/InventoryListing");
-            Label newItemName = new Label();
-            newItemName.Text = name;
-            inventoryPanel.AddChild(newItemName);
+            VBoxContainer inventoryPanel = GetNode<VBoxContainer>("/root/Game/UiLayer/Inventory/Split/Listing");
+
+            PackedScene itemLabelPanel = GD.Load<PackedScene>("res://prefabs/ItemLabelPanel.tscn");
+            ItemLabel panel = (ItemLabel)itemLabelPanel.Instance();
+
+            panel.Item = newItem;
+            panel.GetNode<Label>("Label").Text = newItem.Name;
+            inventoryPanel.AddChild(panel);
         }
     }
 }

@@ -1,7 +1,8 @@
-[gd_scene load_steps=25 format=2]
+[gd_scene load_steps=26 format=2]
 
 [ext_resource path="res://graphics/icons/skills/Lightning.png" type="Texture" id=1]
 [ext_resource path="res://graphics/icons/skills/SkillFrame.png" type="Texture" id=2]
+[ext_resource path="res://src/SlotPanel.cs" type="Script" id=3]
 
 [sub_resource type="VisualShaderNodeInput" id=1]
 input_name = "uv"
@@ -319,18 +320,119 @@ __meta__ = {
 }
 
 [node name="Inventory" type="WindowDialog" parent="."]
-margin_right = 48.0
-margin_bottom = 40.0
+visible = true
+margin_left = 300.0
+margin_top = 213.0
+margin_right = 409.0
+margin_bottom = 253.0
+rect_min_size = Vector2( 320, 200 )
 window_title = "Inventory"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="InventoryListing" type="VBoxContainer" parent="Inventory"]
-margin_left = 65.9112
-margin_top = 78.6991
-margin_right = 100.911
-margin_bottom = 98.6991
+[node name="Split" type="HBoxContainer" parent="Inventory"]
+margin_right = 40.0
+margin_bottom = 40.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Listing" type="VBoxContainer" parent="Inventory/Split"]
+margin_right = 150.0
+margin_bottom = 200.0
+rect_min_size = Vector2( 150, 200 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Splots" type="GridContainer" parent="Inventory/Split"]
+margin_left = 154.0
+margin_right = 304.0
+margin_bottom = 200.0
+rect_min_size = Vector2( 150, 200 )
+columns = 3
+
+[node name="Control" type="Control" parent="Inventory/Split/Splots"]
+margin_right = 50.0
+margin_bottom = 50.0
+rect_min_size = Vector2( 50, 0 )
+
+[node name="Head" type="Panel" parent="Inventory/Split/Splots"]
+margin_left = 54.0
+margin_right = 104.0
+margin_bottom = 50.0
+rect_min_size = Vector2( 50, 50 )
+script = ExtResource( 3 )
+
+[node name="TextureRect" type="TextureRect" parent="Inventory/Split/Splots/Head"]
+margin_right = 100.0
+margin_bottom = 94.0
+rect_min_size = Vector2( 50, 50 )
+rect_scale = Vector2( 0.5, 0.5 )
+stretch_mode = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Control2" type="Control" parent="Inventory/Split/Splots"]
+margin_left = 108.0
+margin_right = 108.0
+margin_bottom = 50.0
+
+[node name="Arms" type="Panel" parent="Inventory/Split/Splots"]
+margin_top = 54.0
+margin_right = 50.0
+margin_bottom = 104.0
+rect_min_size = Vector2( 50, 50 )
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TextureRect" type="TextureRect" parent="Inventory/Split/Splots/Arms"]
+margin_right = 40.0
+margin_bottom = 40.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Chest" type="Panel" parent="Inventory/Split/Splots"]
+margin_left = 54.0
+margin_top = 54.0
+margin_right = 104.0
+margin_bottom = 104.0
+script = ExtResource( 3 )
+
+[node name="TextureRect" type="TextureRect" parent="Inventory/Split/Splots/Chest"]
+margin_right = 40.0
+margin_bottom = 40.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Control3" type="Control" parent="Inventory/Split/Splots"]
+margin_left = 108.0
+margin_top = 54.0
+margin_right = 108.0
+margin_bottom = 104.0
+
+[node name="Control4" type="Control" parent="Inventory/Split/Splots"]
+margin_top = 108.0
+margin_right = 50.0
+margin_bottom = 158.0
+
+[node name="Feet" type="Panel" parent="Inventory/Split/Splots"]
+margin_left = 54.0
+margin_top = 108.0
+margin_right = 104.0
+margin_bottom = 158.0
+rect_min_size = Vector2( 50, 50 )
+script = ExtResource( 3 )
+
+[node name="TextureRect" type="TextureRect" parent="Inventory/Split/Splots/Feet"]
+margin_right = 40.0
+margin_bottom = 40.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
