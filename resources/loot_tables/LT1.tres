@@ -5,5 +5,5 @@
 [resource]
 script = ExtResource( 2 )
 Drops = {
-Resource( "res://items/Helmet.tscn" ): 50
+1: 50.0
 }

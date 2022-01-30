@@ -17,15 +17,20 @@
             "mode": "executable",
             "preLaunchTask": "build",
             "executable": "${env:GODOT}/Godot_v3.4.2-stable_mono_win64.exe\r",
+            "serverReadyAction": {
+                "pattern": "Starting Server on port ([0-9]+)!",
+                "action": "startDebugging",
+                "name": "Launch"
+            },
             "executableArguments": [
                 "--no-window",
                 "--path",
                 "${workspaceRoot}",
                 "scenes/Game.tscn",
                 "--server",
-                "50125",
+                "${input:promptPort}",
                 "--world",
-                "starting_zone"
+                "${input:pickWorld}"
             ]
         },
         {
@@ -40,7 +45,7 @@
                 "${workspaceRoot}",
                 "scenes/Game.tscn",
                 "--world",
-                "starting_zone"
+                "${input:pickWorld}"
             ]
         },
         {
@@ -49,6 +54,21 @@
             "request": "attach",
             "address": "localhost",
             "port": 23685
+        }
+    ],
+    "inputs": [
+        {
+            "id": "promptPort",
+            "description": "Enter port to run on",
+            "type": "promptString",
+            "default": "50125"
+        },
+        {
+            "id": "pickWorld",
+            "description": "Pick world to start",
+            "type": "pickString",
+            "options": ["starting_zone", "world_1"],
+            "default": "starting_zone"
         }
     ]
 }

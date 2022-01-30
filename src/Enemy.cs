@@ -91,10 +91,16 @@ public class Enemy : KinematicBody2D
 
     public override void _Process(float delta)
     {
-        if(currentTarget == null || !currentTarget.IsInsideTree() || currentTarget.IsQueuedForDeletion())
+        if (!IsInstanceValid(currentTarget)) 
         {
             currentTarget = null;
             currentPath = null;
+        } else {
+            if(!currentTarget.IsInsideTree() || currentTarget.IsQueuedForDeletion())
+            {
+                currentTarget = null;
+                currentPath = null;
+            }
         }
     }
 
@@ -109,10 +115,10 @@ public class Enemy : KinematicBody2D
         {
             if (DropTable != null)
             {
-                Godot.Collections.Array<string> drops = DropTable.RollDrops();
-                foreach(string itemResPath in drops)
+                Godot.Collections.Array<int> dropItemIDs = DropTable.RollDrops();
+                foreach(int itemID in dropItemIDs)
                 {
-                    Rpc("allSpawnItem", itemResPath);
+                    Rpc("allSpawnItem", itemID);
                 }
             }
             Rpc("allRemoveEnemy");
@@ -131,7 +137,6 @@ public class Enemy : KinematicBody2D
         if(currentPath != null && currentPath.Length > 0)
         {
             float totalDistance = GlobalPosition.DistanceTo(currentPath[0]);
-            float stepDistance = delta * 100;
             if(totalDistance < 20)
             {
                 if(currentPath.Length > 1)
@@ -147,8 +152,17 @@ public class Enemy : KinematicBody2D
                 }
             }
 
-            Vector2 stepVector = GlobalPosition.LinearInterpolate(currentPath[0], stepDistance / totalDistance);
-            MoveAndCollide(stepVector - GlobalPosition, false);
+            Vector2 pathVector = GlobalPosition.LinearInterpolate(currentPath[0], 100 / totalDistance);
+            MoveAndSlide(pathVector - GlobalPosition, Vector2.Up, false, 4, 0);
+            KinematicCollision2D c = GetLastSlideCollision();
+            if (c != null && c.Travel.Length() < 0.08)
+            {
+                GD.Print("unstuck enemy");
+                RandomNumberGenerator randGen = new RandomNumberGenerator();
+                Vector2 radomPushAnchor = c.Position + (new Vector2(randGen.Randf(), randGen.Randf()) * 30);
+                Vector2 toCol = GlobalPosition.LinearInterpolate(radomPushAnchor, 1);
+                MoveAndCollide(toCol.Inverse() * 300);
+            }
             Rpc("clientUpdateEnemyPos", GlobalPosition.x, GlobalPosition.y);
         }
     }
@@ -199,14 +213,19 @@ public class Enemy : KinematicBody2D
     }
 
     [RemoteSync]
-    public void allSpawnItem(string dropItemResPath)
+    public void allSpawnItem(int itemID)
     {
-        GD.Print("drop item. Yeah!");
-        PackedScene packedGS = (PackedScene)ResourceLoader.Load(dropItemResPath);
-        Item dropItem = (Item)packedGS.Instance();
+        ItemList itemListRes = GD.Load<ItemList>("res://resources/Items.tres");
+        Item itemRes = itemListRes.Items[itemID];
+
+        PackedScene dropItemScene = GD.Load<PackedScene>("res://prefabs/DropItem.tscn");
+        FloorDrop dropItem = (FloorDrop)dropItemScene.Instance();
+
         Node2D mainNode = (Node2D)GetNode<Node2D>("/root/Game/World").GetChild(0);
         dropItem.GlobalPosition = GlobalPosition;
-        dropItem.ItemName = dropItemResPath;
+        dropItem.ItemID = itemID;
+        dropItem.GetNode<Sprite>("Sprite").Texture = itemRes.FloorTexture;
+
         mainNode.AddChild(dropItem);
         dropItem.NetworkReady();
     }

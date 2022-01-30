@@ -4,23 +4,23 @@ using System;
 public class LootTable : Resource
 {
     [Export]
-    public Godot.Collections.Dictionary<PackedScene, int> Drops;
+    public Godot.Collections.Dictionary<int, float> Drops;
 
-    public Godot.Collections.Array<string> RollDrops()
+    public Godot.Collections.Array<int> RollDrops()
     {
-        Godot.Collections.Array<string> list = new Godot.Collections.Array<string>();
+        Godot.Collections.Array<int> list = new Godot.Collections.Array<int>();
         RandomNumberGenerator gen = new RandomNumberGenerator();
+        gen.Seed = (ulong)(DateTime.Now.Ticks);
 
-        foreach (PackedScene key in Drops.Keys)
+        foreach (int itemID in Drops.Keys)
         {
-            int chance = Drops[key];
-            int rand = (int)Math.Round(gen.RandfRange(0, 100));
-            GD.Print($"chance={chance} and rand={rand}");
+            float threshold = 100f - Drops[itemID];
+            float rand = gen.RandfRange(0, 100);
+            GD.Print($"itemID={itemID} threshold={threshold} and rand={rand}");
 
-            if (rand > chance)
+            if (rand >= threshold)
             {
-                Item dropItem = (Item)key.Instance();
-                list.Add(key.ResourcePath);
+                list.Add(itemID);
             }
         }
 

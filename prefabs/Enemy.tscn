@@ -4,10 +4,10 @@
 [ext_resource path="res://graphics/sprites/monster-spritesheet.png" type="Texture" id=2]
 
 [sub_resource type="CircleShape2D" id=12]
-radius = 70.0
+radius = 39.0512
 
 [sub_resource type="CircleShape2D" id=11]
-radius = 50.0
+radius = 57.0351
 
 [sub_resource type="CircleShape2D" id=9]
 radius = 283.591
@@ -40,7 +40,7 @@ animations = [ {
 "frames": [ SubResource( 13 ), SubResource( 14 ), SubResource( 15 ), SubResource( 16 ) ],
 "loop": true,
 "name": "idle",
-"speed": 1.0
+"speed": 1.5
 } ]
 
 [node name="Enemy" type="KinematicBody2D"]
@@ -72,5 +72,4 @@ shape = SubResource( 10 )
 scale = Vector2( 0.2, 0.2 )
 frames = SubResource( 17 )
 animation = "idle"
-frame = 2
 playing = true

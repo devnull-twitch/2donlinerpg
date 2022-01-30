@@ -61,12 +61,27 @@ public class AreaOfEffect : SkillProcess
     }
 }
 
+public class InventorySlot 
+{
+    public int ItemID;
+
+    public int Quantity;
+
+    public InventorySlot(int itemID, int quanitity)
+    {
+        ItemID = itemID;
+        Quantity = quanitity;
+    }
+}
+
 public class PlayerNetworking : KinematicBody2D
 {
     public const string Skill1Identifier = "skill1";
     public const string Skill2Identifier = "skill2";
 
     private Vector2 velocity = new Vector2(0, 0);
+
+    private Godot.Collections.Array<InventorySlot> serverInventory = new Godot.Collections.Array<InventorySlot>();
 
     private float speed = 100;
 
@@ -138,7 +153,7 @@ public class PlayerNetworking : KinematicBody2D
         {
             Vector2 multiVeloccity = velocity * speed;
             MoveAndSlide(multiVeloccity);
-            Rpc("clientUpdatePlayerPos", Position.x, Position.y, Rotation);
+            Rpc("clientUpdatePlayerPos", Position.x, Position.y, GetNode<Sprite>("ArmSprite").Rotation);
         }
     }
 
@@ -149,12 +164,19 @@ public class PlayerNetworking : KinematicBody2D
         RpcId(ownerID, "clientSetMoney", money);
     }
 
-    public void AddItem(string itemName)
+    public bool AddItem(int itemID)
     {
+        if (serverInventory.Count > 10)
+        {
+            GD.Print("inventory full");
+            return false;
+        }
+
+        serverInventory.Add(new InventorySlot(itemID, 1));
         int ownerID = int.Parse(Name);
-        GetNode<InventoryManager>("InventoryManager").RpcId(ownerID, "clientServerAddItem", itemName);
-        // clientServerAddItem has RemoteSync flag but if called with RpcId its not executed locally
-        GetNode<InventoryManager>("InventoryManager").clientServerAddItem(itemName);
+        GetNode<InventoryManager>("InventoryManager").RpcId(ownerID, "clientAddItem", itemID);
+        
+        return true;
     }
 
     public int GetMoney()
@@ -203,7 +225,7 @@ public class PlayerNetworking : KinematicBody2D
     public void clientUpdatePlayerPos(float x, float y, float rot)
     {
         Position = new Vector2(x, y);
-        Rotation = rot;
+        GetNode<Sprite>("ArmSprite").Rotation = rot;
     }
 
     [Remote]
@@ -222,8 +244,10 @@ public class PlayerNetworking : KinematicBody2D
     public void serverUseSkill(string skillName, float x, float y)
     {
         Vector2 target = new Vector2(x, y);
-        LookAt(target);
-        Rpc("clientUpdatePlayerPos", Position.x, Position.y, Rotation);
+        Sprite arm = GetNode<Sprite>("ArmSprite");
+        arm.LookAt(target);
+        arm.Rotation += Godot.Mathf.Pi;
+        Rpc("clientUpdatePlayerPos", Position.x, Position.y, arm.Rotation);
 
         int triggerPlayerID = GetTree().GetRpcSenderId();
         GD.Print($"User {Name} uses {skillName} rotation {GlobalRotation}");

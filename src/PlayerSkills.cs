@@ -25,7 +25,12 @@ public class PlayerSkills : Node
     {
         if (!GetTree().IsNetworkServer())
         {
-            ColorRect skillButtonIcon = GetNode<ColorRect>($"/root/Game/UiLayer/BottomRow/SkillList/{Name}_button/ColorRect");
+            TextureRect skillButtonIcon = GetNodeOrNull<TextureRect>($"/root/Game/UiLayer/BottomRow/SkillList/{Name}_button/TextureRect");
+            if (skillButtonIcon == null)
+            {
+                GD.Print($"skill {Name} has no icon?");
+                return;
+            }
             shaderMat = (ShaderMaterial)skillButtonIcon.Material;
         }
     }
