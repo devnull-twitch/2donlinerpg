@@ -77,7 +77,7 @@ public class FloorDrop : Area2D
 
             if (hasItem)
             {
-                if (!player.AddItem(ItemID)) 
+                if (!player.AddItem(ItemID, false)) 
                 {
                     return;
                 }

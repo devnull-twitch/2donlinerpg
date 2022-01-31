@@ -105,8 +105,8 @@ public class Loader : Node
             return;
         }
 
-        GD.Print($"result={result} response_code={response_code}");
         token = Encoding.UTF8.GetString(body);
+        GD.Print($"player login token={token}");
 
         HTTPRequest httpRequest = GetNode<HTTPRequest>("CharacterRequest");
         string[] requestHeaders = new string[1];
@@ -211,6 +211,7 @@ public class Loader : Node
         PackedScene ps = (PackedScene)ResourceLoader.Load($"res://worlds/{scene}.tscn");
         Node sceneNode = ps.Instance();
         GetNode<Node2D>("/root/Game/World").AddChild(sceneNode);
+
         gameScene.GetNode<PlayerClient>("PlayerClient").StartWithToken(token, charName, ip, port);
         
         GetTree().Root.GetNode<Node2D>("Menu").QueueFree();

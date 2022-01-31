@@ -8,6 +8,5 @@
 script = ExtResource( 1 )
 FloorTexture = ExtResource( 3 )
 InventoryTexture = ExtResource( 2 )
-Wearable = false
 ArmotValue = 10
 Name = "Base Helmet"

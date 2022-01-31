@@ -10,6 +10,9 @@ public class Item : Resource
     public Texture InventoryTexture;
 
     [Export]
+    public bool Wearable;
+
+    [Export]
     public int ArmotValue;
 
     [Export]

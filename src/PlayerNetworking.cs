@@ -61,27 +61,18 @@ public class AreaOfEffect : SkillProcess
     }
 }
 
-public class InventorySlot 
-{
-    public int ItemID;
-
-    public int Quantity;
-
-    public InventorySlot(int itemID, int quanitity)
-    {
-        ItemID = itemID;
-        Quantity = quanitity;
-    }
-}
-
 public class PlayerNetworking : KinematicBody2D
 {
     public const string Skill1Identifier = "skill1";
     public const string Skill2Identifier = "skill2";
 
+    public string Account;
+
+    public string Character;
+
     private Vector2 velocity = new Vector2(0, 0);
 
-    private Godot.Collections.Array<InventorySlot> serverInventory = new Godot.Collections.Array<InventorySlot>();
+    private Godot.Collections.Array<Item> serverInventory = new Godot.Collections.Array<Item>();
 
     private float speed = 100;
 
@@ -164,7 +155,7 @@ public class PlayerNetworking : KinematicBody2D
         RpcId(ownerID, "clientSetMoney", money);
     }
 
-    public bool AddItem(int itemID)
+    public bool AddItem(int itemID, bool setup = false)
     {
         if (serverInventory.Count > 10)
         {
@@ -172,7 +163,16 @@ public class PlayerNetworking : KinematicBody2D
             return false;
         }
 
-        serverInventory.Add(new InventorySlot(itemID, 1));
+        if (!setup)
+        {
+            GetParent<PlayerManager>().savePlayerInventory(Account, Character, itemID);
+        }
+
+        ItemList itemListRes = GD.Load<ItemList>("res://resources/Items.tres");
+        Item itemRes = itemListRes.Items[itemID];
+
+        GD.Print($"adding {itemRes.Name}");
+        serverInventory.Add(itemRes);
         int ownerID = int.Parse(Name);
         GetNode<InventoryManager>("InventoryManager").RpcId(ownerID, "clientAddItem", itemID);
         

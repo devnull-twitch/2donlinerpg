@@ -13,23 +13,7 @@ public class PlayerClient : Node
 
     public override void _Ready()
     {
-        ConfigFile cf = new ConfigFile();
-        Error err = cf.Load("res://networking.cfg");
-        if (err != Error.Ok)
-        {
-            GD.Print($"unable to parse networking.cfg: {err}");
-            return;
-        }
-
         GetTree().Connect("connected_to_server", this, nameof(onConnectedToServer));
-
-        ip = (string)cf.GetValue("gameserver", "ip");
-        port = (int)cf.GetValue("gameserver", "port");
-
-        if (ip != "" && port > 0)
-        {
-            StartWithToken(Token, "Tester", ip, port);
-        }
     }
 
     public void StartWithToken(string token, string charName, string ip, int port)
@@ -69,6 +53,7 @@ public class PlayerClient : Node
 
     public void onConnectedToServer()
     {
-        GD.PrintS("connected\n");
+        Node2D mainNode = (Node2D)GetNode<Node2D>("/root/Game/World").GetChild(0);
+        mainNode.GetNode<NetworkManager>("NetworkManager").RpcId(1, "serverClientAuth", Token, CharName);
     }
 }

@@ -7,6 +7,8 @@ public class NetworkManager : Node
 
     private EnemyManager em;
 
+    private Godot.Collections.Array<int> unauthedPeers = new Godot.Collections.Array<int>();
+
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
@@ -20,6 +22,24 @@ public class NetworkManager : Node
                 Start(port);
                 return;
             }
+        }
+
+        ConfigFile cf = new ConfigFile();
+        Error err = cf.Load("res://networking.cfg");
+        if (err != Error.Ok)
+        {
+            GD.Print($"unable to parse networking.cfg: {err}");
+            return;
+        }
+
+        string ip = (string)cf.GetValue("gameserver", "ip");
+        int clientPort = (int)cf.GetValue("gameserver", "port");
+        string token = (string)cf.GetValue("gameserver", "token");
+        string character = (string)cf.GetValue("gameserver", "character");
+
+        if (ip != "" && clientPort > 0)
+        {
+            GetNode<PlayerClient>("/root/Game/PlayerClient").StartWithToken(token, character, ip, clientPort);
         }
     }
 
@@ -54,7 +74,28 @@ public class NetworkManager : Node
 
     public void onNetworkPeerConnected(int id)
     {
-        pm.onNetworkPeerConnected(id);
+        unauthedPeers.Add(id);
+    }
+
+    [Remote]
+    public void serverClientAuth(string token, string charName)
+    {
+        GD.Print("client send auth");
+        int id = GetTree().GetRpcSenderId();
+
+        string payloadEncoded = token.Split(".")[1];
+        payloadEncoded = payloadEncoded.PadRight(payloadEncoded.Length + (payloadEncoded.Length % 4), '=');
+        byte[] decodedPayloadBytes = System.Convert.FromBase64String(payloadEncoded);
+        string decodedPayloadStr = System.Text.Encoding.UTF8.GetString(decodedPayloadBytes);
+        JSONParseResult json = JSON.Parse(decodedPayloadStr);
+        Godot.Collections.Dictionary respData = (Godot.Collections.Dictionary)json.Result;
+
+        onPlayerAuthed(id, (string)respData["sub"], charName);
+    }
+
+    public void onPlayerAuthed(int id, string accountName, string chara)
+    {
+        pm.onNetworkPeerConnected(id, accountName, chara);
         em.onNetworkPeerConnected(id);
     }
 
