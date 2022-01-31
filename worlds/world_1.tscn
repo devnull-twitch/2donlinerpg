@@ -74,6 +74,10 @@ script = ExtResource( 9 )
 [node name="PlayerManager" type="Node" parent="NetworkManager"]
 script = ExtResource( 5 )
 
+[node name="InventoryLoader" type="HTTPRequest" parent="NetworkManager/PlayerManager"]
+
+[node name="InventorySaver" type="HTTPRequest" parent="NetworkManager/PlayerManager"]
+
 [node name="EnemyManager" type="Node" parent="NetworkManager"]
 script = ExtResource( 8 )
 
