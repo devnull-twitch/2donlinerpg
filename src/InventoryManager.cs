@@ -5,7 +5,7 @@ public class InventoryManager : Node
 {
     public int maxSlots = 10;
 
-    [RemoteSync]
+    [Remote]
     public void clientAddItem(int itemID)
     {
         ItemList itemListRes = GD.Load<ItemList>("res://resources/Items.tres");
@@ -15,18 +15,30 @@ public class InventoryManager : Node
         Node itemInstance = itemScene.Instance();
         InventoryItem newItem = (InventoryItem)itemInstance;
         newItem.Name = itemRes.Name;
-        newItem.Texture = itemRes.InventoryTexture;
-        newItem.Armor = itemRes.ArmotValue;
+        newItem.Item = itemRes;
+        newItem.ItemID = itemID;
 
         AddChild(newItem);
 
-        VBoxContainer inventoryPanel = GetNode<VBoxContainer>("/root/Game/UiLayer/Inventory/Split/Listing");
+        GridContainer inventoryPanel = GetNode<GridContainer>("/root/Game/UiLayer/Inventory/Split/Listing");
 
         PackedScene itemLabelPanel = GD.Load<PackedScene>("res://prefabs/ItemLabelPanel.tscn");
         ItemLabel panel = (ItemLabel)itemLabelPanel.Instance();
 
         panel.Item = newItem;
-        panel.GetNode<Label>("Label").Text = newItem.Name;
+        panel.GetNode<TextureRect>("Sprite").Texture = newItem.Item.InventoryTexture;
         inventoryPanel.AddChild(panel);
     }
+
+    [Remote]
+    public void clientRemoveItem(int itemID)
+    {
+        foreach(Node n in GetChildren())
+        {
+            if (n is InventoryItem && ((InventoryItem)n).ItemID == itemID)
+            {
+                n.QueueFree();
+            }
+        }
+    } 
 }

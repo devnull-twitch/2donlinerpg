@@ -7,15 +7,9 @@ public class ItemLabel : Panel
 
     public override object GetDragData(Vector2 position)
     {
-        GD.Print("check drag?");
         Label preview = new Label();
-        preview.Text = Item.Name;
+        preview.Text = Item.Item.Name;
         SetDragPreview(preview);
         return Item;
-    }
-
-    public void DebugMouseEntered()
-    {
-        GD.Print("mouse has entered");
     }
 }

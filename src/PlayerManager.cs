@@ -83,7 +83,7 @@ public class PlayerManager : Node
         pn.Rpc("clientSetStats", pn.GetHealth(), pn.GetArmor());
     }
 
-    public void savePlayerInventory(string account, string character, int itemID)
+    public void addPlayerInventory(string account, string character, int itemID)
     {
         Godot.Collections.Dictionary<string, string> pl = new Godot.Collections.Dictionary<string, string>();
         pl["account"] = account;
@@ -97,6 +97,23 @@ public class PlayerManager : Node
         string[] requestHeaders = new string[1];
         requestHeaders[0] = $"Authorization: Basic {svcCredentials}";
         invLoaderReq.Request($"{baseURL}/character/inventory", requestHeaders, false, HTTPClient.Method.Post, jsonString);
+    }
+
+    public void changePlayerInventory(string account, string character, int removeID, int slotID, int addID)
+    {
+        Godot.Collections.Dictionary<string, string> pl = new Godot.Collections.Dictionary<string, string>();
+        pl["account"] = account;
+        pl["character"] = character;
+        pl["slot_id"] = $"{slotID}";
+        pl["remove_item_id"] = $"{removeID}";
+        pl["add_item_id"] = $"{addID}";
+
+        string jsonString = JSON.Print(pl);
+
+        string svcCredentials = Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes("gameserver:" + serverPassword));
+        string[] requestHeaders = new string[1];
+        requestHeaders[0] = $"Authorization: Basic {svcCredentials}";
+        GetNode<HTTPRequest>("InventorySaver").Request($"{baseURL}/character/inventory/change", requestHeaders, false, HTTPClient.Method.Post, jsonString);
     }
 
     public void onInventoryFetched(int result, int response_code, string[] headers, byte[] body)

@@ -118,19 +118,20 @@ __meta__ = {
 }
 
 [node name="Split" type="HBoxContainer" parent="Inventory"]
-margin_right = 40.0
-margin_bottom = 40.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 5.0
+margin_top = 2.0
+margin_right = -5.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Listing" type="VBoxContainer" parent="Inventory/Split"]
+[node name="Listing" type="GridContainer" parent="Inventory/Split"]
 margin_right = 150.0
 margin_bottom = 200.0
 rect_min_size = Vector2( 150, 200 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
+columns = 3
 
 [node name="Splots" type="GridContainer" parent="Inventory/Split"]
 margin_left = 154.0
@@ -151,16 +152,20 @@ margin_bottom = 50.0
 rect_min_size = Vector2( 50, 50 )
 custom_styles/panel = SubResource( 24 )
 script = ExtResource( 3 )
+SlotID = 1
 
 [node name="TextureRect" type="TextureRect" parent="Inventory/Split/Splots/Head"]
-margin_right = 100.0
-margin_bottom = 94.0
+margin_left = -5.0
+margin_right = 45.0
+margin_bottom = 50.0
 rect_min_size = Vector2( 50, 50 )
-rect_scale = Vector2( 0.5, 0.5 )
+expand = true
 stretch_mode = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="HTTPRequest" type="HTTPRequest" parent="Inventory/Split/Splots/Head"]
 
 [node name="Control2" type="Control" parent="Inventory/Split/Splots"]
 margin_left = 108.0
@@ -177,13 +182,17 @@ script = ExtResource( 3 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
+SlotID = 2
 
 [node name="TextureRect" type="TextureRect" parent="Inventory/Split/Splots/Arms"]
 margin_right = 40.0
 margin_bottom = 40.0
+expand = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="HTTPRequest" type="HTTPRequest" parent="Inventory/Split/Splots/Arms"]
 
 [node name="Chest" type="Panel" parent="Inventory/Split/Splots"]
 margin_left = 54.0
@@ -192,13 +201,17 @@ margin_right = 104.0
 margin_bottom = 104.0
 custom_styles/panel = SubResource( 26 )
 script = ExtResource( 3 )
+SlotID = 3
 
 [node name="TextureRect" type="TextureRect" parent="Inventory/Split/Splots/Chest"]
 margin_right = 40.0
 margin_bottom = 40.0
+expand = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="HTTPRequest" type="HTTPRequest" parent="Inventory/Split/Splots/Chest"]
 
 [node name="Control3" type="Control" parent="Inventory/Split/Splots"]
 margin_left = 108.0
@@ -219,13 +232,17 @@ margin_bottom = 158.0
 rect_min_size = Vector2( 50, 50 )
 custom_styles/panel = SubResource( 27 )
 script = ExtResource( 3 )
+SlotID = 4
 
 [node name="TextureRect" type="TextureRect" parent="Inventory/Split/Splots/Feet"]
 margin_right = 40.0
 margin_bottom = 40.0
+expand = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="HTTPRequest" type="HTTPRequest" parent="Inventory/Split/Splots/Feet"]
 
 [node name="BottomRow" type="MarginContainer" parent="."]
 anchor_top = 1.0

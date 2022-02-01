@@ -118,7 +118,8 @@ public class Enemy : KinematicBody2D
                 Godot.Collections.Array<int> dropItemIDs = DropTable.RollDrops();
                 foreach(int itemID in dropItemIDs)
                 {
-                    Rpc("allSpawnItem", itemID);
+                    string uniqueName = $"{GetRid().ToString()}_{itemID}";
+                    Rpc("allSpawnItem", itemID, uniqueName);
                 }
             }
             Rpc("allRemoveEnemy");
@@ -213,7 +214,7 @@ public class Enemy : KinematicBody2D
     }
 
     [RemoteSync]
-    public void allSpawnItem(int itemID)
+    public void allSpawnItem(int itemID, string uniqueName)
     {
         ItemList itemListRes = GD.Load<ItemList>("res://resources/Items.tres");
         Item itemRes = itemListRes.Items[itemID];
@@ -224,6 +225,7 @@ public class Enemy : KinematicBody2D
         Node2D mainNode = (Node2D)GetNode<Node2D>("/root/Game/World").GetChild(0);
         dropItem.GlobalPosition = GlobalPosition;
         dropItem.ItemID = itemID;
+        dropItem.Name = uniqueName;
         dropItem.GetNode<Sprite>("Sprite").Texture = itemRes.FloorTexture;
 
         mainNode.AddChild(dropItem);

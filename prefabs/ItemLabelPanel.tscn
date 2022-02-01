@@ -3,16 +3,20 @@
 [ext_resource path="res://src/ItemLabel.cs" type="Script" id=1]
 
 [node name="Panel" type="Panel"]
-margin_right = 150.0
-rect_min_size = Vector2( 0, 16 )
+margin_right = 50.0
+margin_bottom = 50.0
+rect_min_size = Vector2( 50, 50 )
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Label" type="Label" parent="."]
-margin_right = 40.0
-margin_bottom = 14.0
+[node name="Sprite" type="TextureRect" parent="."]
+margin_right = 50.0
+margin_bottom = 50.0
+rect_min_size = Vector2( 50, 50 )
+rect_clip_content = true
+expand = true
 __meta__ = {
 "_edit_use_anchors_": false
 }

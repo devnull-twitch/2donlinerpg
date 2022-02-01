@@ -1,12 +1,15 @@
 [gd_resource type="Resource" load_steps=4 format=2]
 
 [ext_resource path="res://src/Item.cs" type="Script" id=1]
-[ext_resource path="res://graphics/sprites/helmet.png" type="Texture" id=2]
-[ext_resource path="res://graphics/sprites/chest.png" type="Texture" id=3]
+[ext_resource path="res://graphics/sprites/bag.png" type="Texture" id=2]
+[ext_resource path="res://graphics/sprites/gem.png" type="Texture" id=3]
 
 [resource]
 script = ExtResource( 1 )
-FloorTexture = ExtResource( 3 )
-InventoryTexture = ExtResource( 2 )
-ArmotValue = 10
-Name = "Base Helmet"
+ID = 0
+FloorTexture = ExtResource( 2 )
+InventoryTexture = ExtResource( 3 )
+Wearable = false
+ArmorValue = 0
+Name = "Blue gem"
+MonetaryValue = 0

@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Text;
 
 public class LineProcess : SkillProcess 
 {
@@ -82,9 +83,22 @@ public class PlayerNetworking : KinematicBody2D
 
     private int armor;
 
+    private string baseURL;
+
+    private string serverPassword;
+
     public override void _Ready()
     {
-        GD.Print($"PN thoughts about beeing a server = {GetTree().IsNetworkServer()}");
+        ConfigFile cf = new ConfigFile();
+        Error err = cf.Load("res://networking.cfg");
+        if (err != Error.Ok)
+        {
+            GD.Print($"unable to parse networking.cfg: {err}");
+            return;
+        }
+
+        baseURL = (string)cf.GetValue("gameapi", "base_url");
+        serverPassword = (string)cf.GetValue("gameapi", "server_auth");
 
         if (!GetTree().IsNetworkServer())
         {
@@ -165,7 +179,7 @@ public class PlayerNetworking : KinematicBody2D
 
         if (!setup)
         {
-            GetParent<PlayerManager>().savePlayerInventory(Account, Character, itemID);
+            GetParent<PlayerManager>().addPlayerInventory(Account, Character, itemID);
         }
 
         ItemList itemListRes = GD.Load<ItemList>("res://resources/Items.tres");
@@ -261,6 +275,32 @@ public class PlayerNetworking : KinematicBody2D
             case PlayerNetworking.Skill2Identifier:
                 GetNode<PlayerSkills>(Skill2Identifier).Trigger(this, target);
                 break;
+        }
+    }
+
+    [Remote]
+    public void serverSlotItem(int itemID = 0, int slotID = 0, int priorSlotItem = 0)
+    {
+        GD.Print($"item slot change! itemID={itemID} slotID={slotID} priorSlotItem={priorSlotItem}");
+        for (int index = 0; index < serverInventory.Count; index++)
+        {
+            Item i = serverInventory[index];
+            int ownerID = int.Parse(Name);
+            GetNode<InventoryManager>("InventoryManager").RpcId(ownerID, "clientRemoveItem", itemID);
+
+            if (i.ID == itemID)
+            {
+                serverInventory.RemoveAt(index);
+                if (priorSlotItem != 0)
+                {
+                    ItemList itemListRes = GD.Load<ItemList>("res://resources/Items.tres");
+                    Item itemRes = itemListRes.Items[itemID];
+                    serverInventory.Add(itemRes);
+                    GetNode<InventoryManager>("InventoryManager").RpcId(ownerID, "clientAddItem", itemID);
+                }
+
+                GetParent<PlayerManager>().changePlayerInventory(Account, Character, itemID, slotID, priorSlotItem);
+            }
         }
     }
 }

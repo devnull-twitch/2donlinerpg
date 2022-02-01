@@ -1,9 +1,9 @@
 name: "godot-ci export"
 
-on: 
+on:
   push:
-    branches:
-      - master
+    tags:
+      - 'v*'
 
 env:
   GODOT_VERSION: 3.4.2
@@ -124,3 +124,32 @@ jobs:
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.version=${{ github.event.release.tag_name }}
           tags: ghcr.io/devnull-twitch/2donlinerpg-server:latest
+
+  release:
+    name: Make release
+    runs-on: ubuntu-latest
+    needs: [export-windows, export-linux]
+    steps:
+      - 
+        name: Download windows build
+        uses: actions/download-artifact@v2
+        with:
+          name: windows
+          path: windows-client
+      - 
+        name: Download linux build
+        uses: actions/download-artifact@v2
+        with:
+          name: linux
+          path: linux-client
+      -
+        name: Zip it
+        run: |
+          zip -o windows-client.zip windows-client/**
+          zip -o linux-client.zip linux-client/**
+      - 
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "linux-client,windows-client.zip"
+          omitBody: true
+          token: ${{ secrets.GHCR_TOKEN }}

@@ -3,7 +3,7 @@ using System;
 
 public class InventoryItem : Node
 {
-    public Texture Texture;
+    public Item Item;
 
-    public int Armor;
+    public int ItemID;
 }
