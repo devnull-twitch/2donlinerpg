@@ -150,6 +150,6 @@ jobs:
       - 
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "linux-client,windows-client.zip"
+          artifacts: "linux-client.zip,windows-client.zip"
           omitBody: true
           token: ${{ secrets.GHCR_TOKEN }}
