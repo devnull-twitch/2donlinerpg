@@ -16,6 +16,9 @@ public class Item : Resource
     public bool Wearable;
 
     [Export]
+    public bool Stackable;
+
+    [Export]
     public int ArmorValue;
 
     [Export]

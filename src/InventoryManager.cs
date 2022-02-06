@@ -6,19 +6,15 @@ public class InventoryManager : Node
     public int maxSlots = 10;
 
     [Remote]
-    public void clientAddItem(int itemID)
+    public void clientAddItem(int itemID, int quantity)
     {
         ItemList itemListRes = GD.Load<ItemList>("res://resources/Items.tres");
         Item itemRes = itemListRes.Items[itemID];
 
-        PackedScene itemScene = GD.Load<PackedScene>("res://prefabs/InventoryItem.tscn");
-        Node itemInstance = itemScene.Instance();
-        InventoryItem newItem = (InventoryItem)itemInstance;
-        newItem.Name = itemRes.Name;
+        InventoryItem newItem = GD.Load<InventoryItem>("res://resources/InventoryItem.tres");
         newItem.Item = itemRes;
         newItem.ItemID = itemID;
-
-        AddChild(newItem);
+        newItem.Quantity = quantity;
 
         GridContainer inventoryPanel = GetNode<GridContainer>("/root/Game/UiLayer/Inventory/Split/Listing");
 
@@ -33,11 +29,13 @@ public class InventoryManager : Node
     [Remote]
     public void clientRemoveItem(int itemID)
     {
-        foreach(Node n in GetChildren())
+        GridContainer inventoryPanel = GetNode<GridContainer>("/root/Game/UiLayer/Inventory/Split/Listing");
+        foreach (ItemLabel il in inventoryPanel.GetChildren())
         {
-            if (n is InventoryItem && ((InventoryItem)n).ItemID == itemID)
+            if (il.Item.ItemID == itemID)
             {
-                n.QueueFree();
+                il.Free();
+                break;
             }
         }
     } 

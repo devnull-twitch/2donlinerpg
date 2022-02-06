@@ -65,7 +65,6 @@ public class FloorDrop : Area2D
 
     public void OnPlayerEntered(Node2D body)
     {
-        GD.Print("Does this even work?");
         if(body is PlayerNetworking && PickupOnEnter)
         {
             PlayerNetworking player = (PlayerNetworking)body;
@@ -77,7 +76,7 @@ public class FloorDrop : Area2D
 
             if (hasItem)
             {
-                if (!player.AddItem(ItemID, false)) 
+                if (!player.AddItem(ItemID, 1, false)) 
                 {
                     return;
                 }

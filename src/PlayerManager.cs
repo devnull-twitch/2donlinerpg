@@ -83,20 +83,56 @@ public class PlayerManager : Node
         pn.Rpc("clientSetStats", pn.GetHealth(), pn.GetArmor());
     }
 
-    public void addPlayerInventory(string account, string character, int itemID)
+    public void addPlayerInventory(string account, string character, int itemID, int quantity)
     {
         Godot.Collections.Dictionary<string, string> pl = new Godot.Collections.Dictionary<string, string>();
         pl["account"] = account;
         pl["character"] = character;
         pl["item_id"] = $"{itemID}";
+        pl["quantity"] = $"{quantity}";
 
         string jsonString = JSON.Print(pl);
 
-        HTTPRequest invLoaderReq = GetNode<HTTPRequest>("InventorySaver");
+        int port = 80;
+        baseURL = baseURL.Replace("http://", "");
+        string[] baseURLParts = baseURL.Split(":");
+        port = int.Parse(baseURLParts[1]);
+        HTTPClient http = new HTTPClient();
+        Error err = http.ConnectToHost(baseURLParts[0], port);
+        if (err != Error.Ok) 
+        {
+            GD.Print($"Inventory save http setup error: {err}");
+            return;
+        }
+
+        while (http.GetStatus() == HTTPClient.Status.Connecting || http.GetStatus() == HTTPClient.Status.Resolving)
+        {
+            http.Poll();
+            OS.DelayMsec(500);
+        }
+
+        if (http.GetStatus() != HTTPClient.Status.Connected)
+        {
+            GD.Print($"Inventory save connection failed: {http.GetStatus()}");
+            return;
+        }
+
         string svcCredentials = Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes("gameserver:" + serverPassword));
         string[] requestHeaders = new string[1];
         requestHeaders[0] = $"Authorization: Basic {svcCredentials}";
-        invLoaderReq.Request($"{baseURL}/character/inventory", requestHeaders, false, HTTPClient.Method.Post, jsonString);
+        err = http.Request(HTTPClient.Method.Post, "/character/inventory", requestHeaders, jsonString);
+        if (err != Error.Ok) 
+        {
+            GD.Print($"Inventory save error: {err}");
+            return;
+        }
+
+        while (http.GetStatus() == HTTPClient.Status.Requesting)
+        {
+            http.Poll();
+        }
+
+        GD.Print($"inventory save done: {http.GetStatus()}");
     }
 
     public void changePlayerInventory(string account, string character, int removeID, int slotID, int addID)
@@ -130,12 +166,14 @@ public class PlayerManager : Node
         Godot.Collections.Dictionary respData = (Godot.Collections.Dictionary)json.Result;
         string account = (string)respData["account"];
         string chracter = (string)respData["character"];
-        Godot.Collections.Array inventoryItems = (Godot.Collections.Array)respData["item_ids"];
+        Godot.Collections.Array inventoryItems = (Godot.Collections.Array)respData["items"];
         
         int peerID = idMap[$"{account}.{chracter}"];
-        foreach (float itemID in inventoryItems)
+        foreach (Godot.Collections.Dictionary itemData in inventoryItems)
         {
-            GetNode<PlayerNetworking>($"{peerID}").AddItem((int)itemID, true);
+            float itemID = (float)respData["item_id"];
+            float quantity = (float)respData["quantity"];
+            GetNode<PlayerNetworking>($"{peerID}").AddItem((int)itemID, (int)quantity, true);
         }
 
         GD.Print(inventoryItems);

@@ -6,10 +6,11 @@
 
 [resource]
 script = ExtResource( 1 )
-ID = 0
+ID = 2
 FloorTexture = ExtResource( 2 )
 InventoryTexture = ExtResource( 3 )
 Wearable = false
+Stackable = true
 ArmorValue = 0
 Name = "Blue gem"
 MonetaryValue = 0

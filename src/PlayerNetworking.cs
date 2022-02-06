@@ -73,7 +73,7 @@ public class PlayerNetworking : KinematicBody2D
 
     private Vector2 velocity = new Vector2(0, 0);
 
-    private Godot.Collections.Array<Item> serverInventory = new Godot.Collections.Array<Item>();
+    private Godot.Collections.Array<InventoryItem> serverInventory = new Godot.Collections.Array<InventoryItem>();
 
     private float speed = 100;
 
@@ -169,7 +169,7 @@ public class PlayerNetworking : KinematicBody2D
         RpcId(ownerID, "clientSetMoney", money);
     }
 
-    public bool AddItem(int itemID, bool setup = false)
+    public bool AddItem(int itemID, int quantity, bool setup = false)
     {
         if (serverInventory.Count > 10)
         {
@@ -179,16 +179,23 @@ public class PlayerNetworking : KinematicBody2D
 
         if (!setup)
         {
-            GetParent<PlayerManager>().addPlayerInventory(Account, Character, itemID);
+            GetParent<PlayerManager>().addPlayerInventory(Account, Character, itemID, quantity);
         }
 
         ItemList itemListRes = GD.Load<ItemList>("res://resources/Items.tres");
         Item itemRes = itemListRes.Items[itemID];
 
-        GD.Print($"adding {itemRes.Name}");
-        serverInventory.Add(itemRes);
+        GD.Print($"adding ({itemRes.ID}){itemRes.Name}");
+
+        InventoryItem newItem = GD.Load<InventoryItem>("res://resources/InventoryItem.tres");
+        newItem.Item = itemRes;
+        newItem.ItemID = itemID;
+        newItem.Quantity = quantity;
+
+        serverInventory.Add(newItem);
+
         int ownerID = int.Parse(Name);
-        GetNode<InventoryManager>("InventoryManager").RpcId(ownerID, "clientAddItem", itemID);
+        GetNode<InventoryManager>("InventoryManager").RpcId(ownerID, "clientAddItem", itemID, quantity);
         
         return true;
     }
@@ -281,26 +288,69 @@ public class PlayerNetworking : KinematicBody2D
     [Remote]
     public void serverSlotItem(int itemID = 0, int slotID = 0, int priorSlotItem = 0)
     {
-        GD.Print($"item slot change! itemID={itemID} slotID={slotID} priorSlotItem={priorSlotItem}");
         for (int index = 0; index < serverInventory.Count; index++)
         {
-            Item i = serverInventory[index];
-            int ownerID = int.Parse(Name);
-            GetNode<InventoryManager>("InventoryManager").RpcId(ownerID, "clientRemoveItem", itemID);
-
-            if (i.ID == itemID)
+            InventoryItem i = serverInventory[index];
+            GD.Print($"loop inventory! itemID={itemID} index={index} index_item_id={i.ItemID}");
+            if (i.ItemID == itemID)
             {
+                int ownerID = int.Parse(Name);
+                GD.Print($"clientRemoveItem! itemID={itemID} ownerID={ownerID}");
+                GetNode<InventoryManager>("InventoryManager").RpcId(ownerID, "clientRemoveItem", itemID);
+
                 serverInventory.RemoveAt(index);
                 if (priorSlotItem != 0)
                 {
                     ItemList itemListRes = GD.Load<ItemList>("res://resources/Items.tres");
                     Item itemRes = itemListRes.Items[itemID];
-                    serverInventory.Add(itemRes);
-                    GetNode<InventoryManager>("InventoryManager").RpcId(ownerID, "clientAddItem", itemID);
+
+                    InventoryItem newItem = GD.Load<InventoryItem>("res://resources/InventoryItem.tres");
+                    newItem.Item = itemRes;
+                    newItem.ItemID = itemID;
+                    newItem.Quantity = 1;
+
+                    serverInventory.Add(newItem);
+                    GetNode<InventoryManager>("InventoryManager").RpcId(ownerID, "clientAddItem", itemID, 1);
                 }
 
                 GetParent<PlayerManager>().changePlayerInventory(Account, Character, itemID, slotID, priorSlotItem);
             }
         }
+    }
+
+    [Remote]
+    public void serverMergeItems(int itemID, int primaryItemQuantity, int secondaryItemQuantity)
+    {
+        bool found1 = false;
+        bool found2 = false;
+        for (int index = 0; index < serverInventory.Count; index++)
+        {
+            InventoryItem i = serverInventory[index];
+            if (i.ItemID == itemID)
+            {
+                if (!found1 && primaryItemQuantity == i.Quantity) {
+                    found1 = true;
+                    continue;
+                }
+
+                if (!found2 && secondaryItemQuantity == i.Quantity) {
+                    found2 = true;
+                }
+
+                if (found1 && found2)
+                {
+                    break;
+                }
+            }
+        }
+
+        if (!found1 || !found2)
+        {
+            GD.Print("unable to merge items");
+            return;
+        }
+
+        // make http call to remove itemid and secondaryItemQuantity
+        // make http call to add itemid & primaryItemQuantity => new quantity = primaryItemQuantity + secondaryItemQuantity
     }
 }
