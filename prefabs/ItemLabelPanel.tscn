@@ -1,6 +1,14 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://src/ItemLabel.cs" type="Script" id=1]
+[ext_resource path="res://fonts/Comfortaa-Regular.ttf" type="DynamicFontData" id=2]
+[ext_resource path="res://graphics/sprites/helmet.png" type="Texture" id=3]
+
+[sub_resource type="DynamicFont" id=1]
+size = 20
+outline_size = 1
+outline_color = Color( 0, 0, 0, 1 )
+font_data = ExtResource( 2 )
 
 [node name="Panel" type="Panel"]
 margin_right = 50.0
@@ -16,7 +24,22 @@ margin_right = 50.0
 margin_bottom = 50.0
 rect_min_size = Vector2( 50, 50 )
 rect_clip_content = true
+texture = ExtResource( 3 )
 expand = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="QuantityLabel" type="Label" parent="."]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -40.0
+margin_top = 3.0
+margin_right = -3.0
+margin_bottom = 14.0
+custom_fonts/font = SubResource( 1 )
+text = "5"
+align = 2
 __meta__ = {
 "_edit_use_anchors_": false
 }

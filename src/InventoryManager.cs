@@ -11,7 +11,7 @@ public class InventoryManager : Node
         ItemList itemListRes = GD.Load<ItemList>("res://resources/Items.tres");
         Item itemRes = itemListRes.Items[itemID];
 
-        InventoryItem newItem = GD.Load<InventoryItem>("res://resources/InventoryItem.tres");
+        InventoryItem newItem = new InventoryItem();
         newItem.Item = itemRes;
         newItem.ItemID = itemID;
         newItem.Quantity = quantity;
@@ -20,10 +20,32 @@ public class InventoryManager : Node
 
         PackedScene itemLabelPanel = GD.Load<PackedScene>("res://prefabs/ItemLabelPanel.tscn");
         ItemLabel panel = (ItemLabel)itemLabelPanel.Instance();
-
         panel.Item = newItem;
-        panel.GetNode<TextureRect>("Sprite").Texture = newItem.Item.InventoryTexture;
+
         inventoryPanel.AddChild(panel);
+    }
+
+    [Remote]
+    public void clientEquipItem(int itemID, int slotID)
+    {
+        ItemList itemListRes = GD.Load<ItemList>("res://resources/Items.tres");
+        Item itemRes = itemListRes.Items[itemID];
+
+        InventoryItem newItem = new InventoryItem();
+        newItem.Item = itemRes;
+        newItem.ItemID = itemID;
+        newItem.Quantity = 1;
+
+        GridContainer equipmentSlots = GetNode<GridContainer>("/root/Game/UiLayer/Inventory/Split/Slots");
+        foreach (Control c in equipmentSlots.GetChildren())
+        {
+            if (c is SlotPanel && ((SlotPanel)c).SlotID == slotID)
+            {
+                SlotPanel sp = (SlotPanel)c;
+                sp.CurrentItem = newItem;
+                return;
+            }
+        }
     }
 
     [Remote]

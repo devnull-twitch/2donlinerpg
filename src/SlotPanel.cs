@@ -6,7 +6,16 @@ public class SlotPanel : Panel
     [Export]
     public int SlotID;
 
-    private int CurrentItemID = 0;
+    private InventoryItem item = null;
+
+    public InventoryItem CurrentItem {
+        get {
+            return item;
+        }
+        set {
+            GetNode<TextureRect>("TextureRect").Texture = value.Item.InventoryTexture;
+        }
+    }
 
     public override bool CanDropData(Vector2 position, object data)
     {
@@ -15,10 +24,13 @@ public class SlotPanel : Panel
 
     public override void DropData(Vector2 position, object data)
     {
-        int priorSlottedItemID = CurrentItemID;
-        InventoryItem item = (InventoryItem)data;
-        CurrentItemID = item.ItemID;
-        GetNode<TextureRect>("TextureRect").Texture = item.Item.InventoryTexture;
+        int priorSlottedItemID = 0;
+        if (item != null)
+        {
+            priorSlottedItemID = item.ItemID;
+        }
+        InventoryItem dropItem = (InventoryItem)data;
+        CurrentItem = dropItem;
 
         Node2D mainNode = (Node2D)GetNode<Node2D>("/root/Game/World").GetChild(0);
         int currentPeerId = GetTree().GetNetworkUniqueId();

@@ -93,46 +93,11 @@ public class PlayerManager : Node
 
         string jsonString = JSON.Print(pl);
 
-        int port = 80;
-        baseURL = baseURL.Replace("http://", "");
-        string[] baseURLParts = baseURL.Split(":");
-        port = int.Parse(baseURLParts[1]);
-        HTTPClient http = new HTTPClient();
-        Error err = http.ConnectToHost(baseURLParts[0], port);
-        if (err != Error.Ok) 
-        {
-            GD.Print($"Inventory save http setup error: {err}");
-            return;
-        }
+        HttpWorker httpOffThread = new HttpWorker();
+        httpOffThread.Setup(HTTPClient.Method.Post, "/character/inventory", jsonString);
 
-        while (http.GetStatus() == HTTPClient.Status.Connecting || http.GetStatus() == HTTPClient.Status.Resolving)
-        {
-            http.Poll();
-            OS.DelayMsec(500);
-        }
-
-        if (http.GetStatus() != HTTPClient.Status.Connected)
-        {
-            GD.Print($"Inventory save connection failed: {http.GetStatus()}");
-            return;
-        }
-
-        string svcCredentials = Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes("gameserver:" + serverPassword));
-        string[] requestHeaders = new string[1];
-        requestHeaders[0] = $"Authorization: Basic {svcCredentials}";
-        err = http.Request(HTTPClient.Method.Post, "/character/inventory", requestHeaders, jsonString);
-        if (err != Error.Ok) 
-        {
-            GD.Print($"Inventory save error: {err}");
-            return;
-        }
-
-        while (http.GetStatus() == HTTPClient.Status.Requesting)
-        {
-            http.Poll();
-        }
-
-        GD.Print($"inventory save done: {http.GetStatus()}");
+        Thread httpThread = new Thread();
+        httpThread.Start(httpOffThread, "MakeRequest");
     }
 
     public void changePlayerInventory(string account, string character, int removeID, int slotID, int addID)
@@ -141,15 +106,15 @@ public class PlayerManager : Node
         pl["account"] = account;
         pl["character"] = character;
         pl["slot_id"] = $"{slotID}";
-        pl["remove_item_id"] = $"{removeID}";
-        pl["add_item_id"] = $"{addID}";
+        pl["set_in_slot"] = $"{removeID}";
+        pl["remove_from_slot"] = $"{addID}";
 
         string jsonString = JSON.Print(pl);
 
         string svcCredentials = Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes("gameserver:" + serverPassword));
         string[] requestHeaders = new string[1];
         requestHeaders[0] = $"Authorization: Basic {svcCredentials}";
-        GetNode<HTTPRequest>("InventorySaver").Request($"{baseURL}/character/inventory/change", requestHeaders, false, HTTPClient.Method.Post, jsonString);
+        GetNode<HTTPRequest>("InventorySaver").Request($"{baseURL}/character/inventory/slot_change", requestHeaders, false, HTTPClient.Method.Post, jsonString);
     }
 
     public void onInventoryFetched(int result, int response_code, string[] headers, byte[] body)
@@ -171,9 +136,10 @@ public class PlayerManager : Node
         int peerID = idMap[$"{account}.{chracter}"];
         foreach (Godot.Collections.Dictionary itemData in inventoryItems)
         {
-            float itemID = (float)respData["item_id"];
-            float quantity = (float)respData["quantity"];
-            GetNode<PlayerNetworking>($"{peerID}").AddItem((int)itemID, (int)quantity, true);
+            float itemID = (float)itemData["item_id"];
+            float quantity = (float)itemData["quantity"];
+            float equipmentSlotID = (float)itemData["slot_id"];
+            GetNode<PlayerNetworking>($"{peerID}").AddItem((int)itemID, (int)quantity, (int)equipmentSlotID, true);
         }
 
         GD.Print(inventoryItems);

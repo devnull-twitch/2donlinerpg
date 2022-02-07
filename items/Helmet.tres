@@ -10,6 +10,7 @@ ID = 1
 FloorTexture = ExtResource( 3 )
 InventoryTexture = ExtResource( 2 )
 Wearable = true
+Stackable = false
 ArmorValue = 0
 Name = "Base Helmet"
 MonetaryValue = 0

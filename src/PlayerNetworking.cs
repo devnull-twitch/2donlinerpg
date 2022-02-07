@@ -169,7 +169,7 @@ public class PlayerNetworking : KinematicBody2D
         RpcId(ownerID, "clientSetMoney", money);
     }
 
-    public bool AddItem(int itemID, int quantity, bool setup = false)
+    public bool AddItem(int itemID, int quantity, int slotID, bool setup = false)
     {
         if (serverInventory.Count > 10)
         {
@@ -187,15 +187,19 @@ public class PlayerNetworking : KinematicBody2D
 
         GD.Print($"adding ({itemRes.ID}){itemRes.Name}");
 
-        InventoryItem newItem = GD.Load<InventoryItem>("res://resources/InventoryItem.tres");
+        InventoryItem newItem = new InventoryItem();
         newItem.Item = itemRes;
         newItem.ItemID = itemID;
         newItem.Quantity = quantity;
 
-        serverInventory.Add(newItem);
-
         int ownerID = int.Parse(Name);
-        GetNode<InventoryManager>("InventoryManager").RpcId(ownerID, "clientAddItem", itemID, quantity);
+        if (slotID > 0) {
+            GetNode<InventoryManager>("InventoryManager").RpcId(ownerID, "clientEquipItem", itemID, slotID);
+        } else {
+            serverInventory.Add(newItem);
+            GetNode<InventoryManager>("InventoryManager").RpcId(ownerID, "clientAddItem", itemID, quantity);
+        }
+        
         
         return true;
     }
@@ -291,11 +295,9 @@ public class PlayerNetworking : KinematicBody2D
         for (int index = 0; index < serverInventory.Count; index++)
         {
             InventoryItem i = serverInventory[index];
-            GD.Print($"loop inventory! itemID={itemID} index={index} index_item_id={i.ItemID}");
             if (i.ItemID == itemID)
             {
                 int ownerID = int.Parse(Name);
-                GD.Print($"clientRemoveItem! itemID={itemID} ownerID={ownerID}");
                 GetNode<InventoryManager>("InventoryManager").RpcId(ownerID, "clientRemoveItem", itemID);
 
                 serverInventory.RemoveAt(index);
@@ -304,7 +306,7 @@ public class PlayerNetworking : KinematicBody2D
                     ItemList itemListRes = GD.Load<ItemList>("res://resources/Items.tres");
                     Item itemRes = itemListRes.Items[itemID];
 
-                    InventoryItem newItem = GD.Load<InventoryItem>("res://resources/InventoryItem.tres");
+                    InventoryItem newItem = new InventoryItem();
                     newItem.Item = itemRes;
                     newItem.ItemID = itemID;
                     newItem.Quantity = 1;
@@ -350,7 +352,35 @@ public class PlayerNetworking : KinematicBody2D
             return;
         }
 
+        int ownerID = int.Parse(Name);
+        GetNode<InventoryManager>("InventoryManager").RpcId(ownerID, "clientRemoveItem", itemID);
+
         // make http call to remove itemid and secondaryItemQuantity
+        Godot.Collections.Dictionary<string, string> pl = new Godot.Collections.Dictionary<string, string>();
+        pl["account"] = Account;
+        pl["character"] = Character;
+        pl["item_id"] = $"{itemID}";
+        pl["quantity"] = $"{secondaryItemQuantity}";
+
+        string jsonString = JSON.Print(pl);
+
+        HttpWorker httpOffThread = new HttpWorker();
+        httpOffThread.Setup(HTTPClient.Method.Delete, "/character/inventory", jsonString);
+
+        
+
         // make http call to add itemid & primaryItemQuantity => new quantity = primaryItemQuantity + secondaryItemQuantity
+        pl = new Godot.Collections.Dictionary<string, string>();
+        pl["account"] = Account;
+        pl["character"] = Character;
+        pl["item_id"] = $"{itemID}";
+        pl["quantity"] = $"{primaryItemQuantity + secondaryItemQuantity}";
+
+        jsonString = JSON.Print(pl);
+
+        httpOffThread.Setup(HTTPClient.Method.Put, "/character/inventory", jsonString);
+
+        Thread httpThread = new Thread();
+        httpThread.Start(httpOffThread, "MakeRequest");
     }
 }

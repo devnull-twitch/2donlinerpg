@@ -133,19 +133,19 @@ margin_bottom = 200.0
 rect_min_size = Vector2( 150, 200 )
 columns = 3
 
-[node name="Splots" type="GridContainer" parent="Inventory/Split"]
+[node name="Slots" type="GridContainer" parent="Inventory/Split"]
 margin_left = 154.0
 margin_right = 304.0
 margin_bottom = 200.0
 rect_min_size = Vector2( 150, 200 )
 columns = 3
 
-[node name="Control" type="Control" parent="Inventory/Split/Splots"]
+[node name="Control" type="Control" parent="Inventory/Split/Slots"]
 margin_right = 50.0
 margin_bottom = 50.0
 rect_min_size = Vector2( 50, 0 )
 
-[node name="Head" type="Panel" parent="Inventory/Split/Splots"]
+[node name="Head" type="Panel" parent="Inventory/Split/Slots"]
 margin_left = 54.0
 margin_right = 104.0
 margin_bottom = 50.0
@@ -154,7 +154,7 @@ custom_styles/panel = SubResource( 24 )
 script = ExtResource( 3 )
 SlotID = 1
 
-[node name="TextureRect" type="TextureRect" parent="Inventory/Split/Splots/Head"]
+[node name="TextureRect" type="TextureRect" parent="Inventory/Split/Slots/Head"]
 margin_left = -5.0
 margin_right = 45.0
 margin_bottom = 50.0
@@ -165,14 +165,14 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="HTTPRequest" type="HTTPRequest" parent="Inventory/Split/Splots/Head"]
+[node name="HTTPRequest" type="HTTPRequest" parent="Inventory/Split/Slots/Head"]
 
-[node name="Control2" type="Control" parent="Inventory/Split/Splots"]
+[node name="Control2" type="Control" parent="Inventory/Split/Slots"]
 margin_left = 108.0
 margin_right = 108.0
 margin_bottom = 50.0
 
-[node name="Arms" type="Panel" parent="Inventory/Split/Splots"]
+[node name="Arms" type="Panel" parent="Inventory/Split/Slots"]
 margin_top = 54.0
 margin_right = 50.0
 margin_bottom = 104.0
@@ -184,7 +184,7 @@ __meta__ = {
 }
 SlotID = 2
 
-[node name="TextureRect" type="TextureRect" parent="Inventory/Split/Splots/Arms"]
+[node name="TextureRect" type="TextureRect" parent="Inventory/Split/Slots/Arms"]
 margin_right = 40.0
 margin_bottom = 40.0
 expand = true
@@ -192,9 +192,9 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="HTTPRequest" type="HTTPRequest" parent="Inventory/Split/Splots/Arms"]
+[node name="HTTPRequest" type="HTTPRequest" parent="Inventory/Split/Slots/Arms"]
 
-[node name="Chest" type="Panel" parent="Inventory/Split/Splots"]
+[node name="Chest" type="Panel" parent="Inventory/Split/Slots"]
 margin_left = 54.0
 margin_top = 54.0
 margin_right = 104.0
@@ -203,7 +203,7 @@ custom_styles/panel = SubResource( 26 )
 script = ExtResource( 3 )
 SlotID = 3
 
-[node name="TextureRect" type="TextureRect" parent="Inventory/Split/Splots/Chest"]
+[node name="TextureRect" type="TextureRect" parent="Inventory/Split/Slots/Chest"]
 margin_right = 40.0
 margin_bottom = 40.0
 expand = true
@@ -211,20 +211,20 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="HTTPRequest" type="HTTPRequest" parent="Inventory/Split/Splots/Chest"]
+[node name="HTTPRequest" type="HTTPRequest" parent="Inventory/Split/Slots/Chest"]
 
-[node name="Control3" type="Control" parent="Inventory/Split/Splots"]
+[node name="Control3" type="Control" parent="Inventory/Split/Slots"]
 margin_left = 108.0
 margin_top = 54.0
 margin_right = 108.0
 margin_bottom = 104.0
 
-[node name="Control4" type="Control" parent="Inventory/Split/Splots"]
+[node name="Control4" type="Control" parent="Inventory/Split/Slots"]
 margin_top = 108.0
 margin_right = 50.0
 margin_bottom = 158.0
 
-[node name="Feet" type="Panel" parent="Inventory/Split/Splots"]
+[node name="Feet" type="Panel" parent="Inventory/Split/Slots"]
 margin_left = 54.0
 margin_top = 108.0
 margin_right = 104.0
@@ -234,7 +234,7 @@ custom_styles/panel = SubResource( 27 )
 script = ExtResource( 3 )
 SlotID = 4
 
-[node name="TextureRect" type="TextureRect" parent="Inventory/Split/Splots/Feet"]
+[node name="TextureRect" type="TextureRect" parent="Inventory/Split/Slots/Feet"]
 margin_right = 40.0
 margin_bottom = 40.0
 expand = true
@@ -242,7 +242,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="HTTPRequest" type="HTTPRequest" parent="Inventory/Split/Splots/Feet"]
+[node name="HTTPRequest" type="HTTPRequest" parent="Inventory/Split/Slots/Feet"]
 
 [node name="BottomRow" type="MarginContainer" parent="."]
 anchor_top = 1.0
