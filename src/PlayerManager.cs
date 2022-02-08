@@ -64,6 +64,8 @@ public class PlayerManager : Node
 
         idMap[$"{accountName}.{characterName}"] = id;
 
+        Node2D mainNode = (Node2D)GetNode<Node2D>("/root/Game/World").GetChild(0);
+
         // create new client
         PackedScene ps = GD.Load<PackedScene>("res://prefabs/Player.tscn");
         Node p = ps.Instance();
@@ -71,7 +73,10 @@ public class PlayerManager : Node
         pn.Name = $"{id}";
         pn.Account = accountName;
         pn.Character = characterName;
+        pn.GlobalPosition = mainNode.GetNode<Node2D>("ZoneStart").GlobalPosition;
         AddChild(p);
+
+        pn.RpcId(id, "clientUpdatePlayerPos", pn.Position.x, pn.Position.y, pn.GetNode<Sprite>("ArmSprite").Rotation);
 
         pn.SetHealth(100);
         HTTPRequest invLoaderReq = GetNode<HTTPRequest>("InventoryLoader");

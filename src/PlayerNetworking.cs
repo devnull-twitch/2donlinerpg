@@ -154,12 +154,46 @@ public class PlayerNetworking : KinematicBody2D
             return;
         }
 
+        if (health <= 0)
+        {
+            return;
+        }
+
         if (velocity.x != 0 || velocity.y != 0)
         {
             Vector2 multiVeloccity = velocity * speed;
             MoveAndSlide(multiVeloccity);
             Rpc("clientUpdatePlayerPos", Position.x, Position.y, GetNode<Sprite>("ArmSprite").Rotation);
         }
+    }
+
+    [Remote]
+    public void showDeathUI()
+    {
+        ShaderMaterial shaderMat = (ShaderMaterial)GetNode<Sprite>("BaseSprite").Material;
+        shaderMat.SetShaderParam("Health", 0);
+
+        shaderMat = (ShaderMaterial)GetNode<Sprite>("ArmSprite").Material;
+        shaderMat.SetShaderParam("Health", 0);
+
+        GetNode<AcceptDialog>("/root/Game/UiLayer/DeathDialog").Popup_();
+    }
+
+    [Remote]
+    public void serverRespawn()
+    {
+        if (health > 0)
+        {
+            GD.Print("player is not dead");
+            return;
+        }
+
+        health = 100;
+        Rpc("SetHealth", health);
+
+        Node2D mainNode = (Node2D)GetNode<Node2D>("/root/Game/World").GetChild(0);
+        GlobalPosition = mainNode.GetNode<Node2D>("ZoneStart").GlobalPosition;
+        Rpc("clientUpdatePlayerPos", Position.x, Position.y, GetNode<Sprite>("ArmSprite").Rotation);
     }
 
     public void AddMoney(int val)
@@ -215,11 +249,29 @@ public class PlayerNetworking : KinematicBody2D
     }
 
     // Should only be called on server to set health
+    [Remote]
     public void SetHealth(int newVal)
     {
         health = newVal;
-        int ownerID = int.Parse(Name);
-        RpcId(ownerID, "clientSetStats", health, armor);
+        GetNode<Label>("/root/Game/UiLayer/Resources/Health/Value").Text = $"{health}";
+    }
+
+    public void SubHealth(int dmg)
+    {
+        health -= dmg;
+        GD.Print($"new player health {health}");
+        if (health < 0)
+        {
+            health = 0;
+        }
+
+        if (health <= 0)
+        {
+            int ownerID = int.Parse(Name);
+            RpcId(ownerID, "showDeathUI");
+        }
+
+        Rpc("SetHealth", health);
     }
 
     public int GetArmor()

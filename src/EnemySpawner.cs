@@ -53,7 +53,9 @@ public class EnemySpawner : Node2D
             target = (Enemy)ps.Instance();
             AddChild(target);
             target.GlobalPosition = new Vector2(GlobalPosition.x, GlobalPosition.y);
+            target.InitialPosition = new Vector2(GlobalPosition.x, GlobalPosition.y);
             target.DropTable = DropTable;
+            target.ResetHealth();
         }
         else
         {

@@ -7,6 +7,8 @@ public class Enemy : KinematicBody2D
 
     private PlayerNetworking currentTarget;
 
+    private PlayerNetworking currentAtk;
+
     private Navigation2D nav;
 
     private Vector2[] currentPath;
@@ -17,13 +19,26 @@ public class Enemy : KinematicBody2D
 
     private Area2D leaveArea;
 
-    private int health = 10;
+    public Vector2 InitialPosition;
+
+    private int health = 100;
 
     [Signal]
     delegate void Killed();
 
     [Export]
-    public LootTable DropTable; 
+    public LootTable DropTable;
+
+    [Export]
+    public bool IsMelee;
+
+    [Export]
+    public int BaseDamage;
+
+    [Export]
+    public float AtkSpeed;
+
+    private float lastAtk;
 
     public override void _Ready()
     {
@@ -42,6 +57,7 @@ public class Enemy : KinematicBody2D
 
         atkArea = GetNode<Area2D>("Attack");
         atkArea.Connect("body_entered", this, nameof(OnPlayerEnteredAttack));
+        atkArea.Connect("body_exited", this, nameof(OnPlayerExitedAttack));
 
         leaveArea = GetNode<Area2D>("TargetMove");
     }
@@ -74,8 +90,31 @@ public class Enemy : KinematicBody2D
             return;
         }
 
+        PlayerNetworking enteredPlayer = (PlayerNetworking)body;
+        if (enteredPlayer.Name != currentTarget.Name)
+        {
+            return;
+        }
+
         currentTarget = null;
         currentPath = null;
+        currentAtk = enteredPlayer;
+    }
+
+    public void OnPlayerExitedAttack(Node2D body)
+    {
+        if (currentAtk == null || !(body is PlayerNetworking))
+        {
+            return;
+        }
+
+        PlayerNetworking enteredPlayer = (PlayerNetworking)body;
+        if (enteredPlayer.Name == currentAtk.Name)
+        {
+            currentAtk = null;
+            currentTarget = enteredPlayer;
+            OnTargetMove(currentTarget);
+        }
     }
 
     public void OnTargetMove(Node2D body)
@@ -91,15 +130,26 @@ public class Enemy : KinematicBody2D
 
     public override void _Process(float delta)
     {
-        if (!IsInstanceValid(currentTarget)) 
+        if (currentTarget != null)
         {
-            currentTarget = null;
-            currentPath = null;
-        } else {
-            if(!currentTarget.IsInsideTree() || currentTarget.IsQueuedForDeletion())
+            if (!IsInstanceValid(currentTarget)) 
             {
                 currentTarget = null;
                 currentPath = null;
+            } else {
+                if(!currentTarget.IsInsideTree() || currentTarget.IsQueuedForDeletion())
+                {
+                    currentTarget = null;
+                    currentPath = null;
+                }
+            }
+        }
+
+        if (currentAtk != null)
+        {
+            if (!IsInstanceValid(currentAtk))
+            {
+                currentAtk = null;
             }
         }
     }
@@ -127,14 +177,39 @@ public class Enemy : KinematicBody2D
             return;
         }
 
+        if (currentAtk != null)
+        {
+            lastAtk += delta;
+
+            if (lastAtk >= AtkSpeed)
+            {
+                lastAtk = 0;
+                currentAtk.SubHealth(BaseDamage);
+            }
+
+            if (currentAtk.GetHealth() <= 0)
+            {
+                currentAtk = null;
+                currentTarget = null;
+            }
+        }
+
+        // update path to player
         if(currentTarget != null)
         {
+            if (currentTarget.GetHealth() <= 0)
+            {
+                currentAtk = null;
+                currentTarget = null;
+            }
+
             if(!leaveArea.OverlapsBody(currentTarget))
             {
                 OnTargetMove(currentTarget);
             }
         }
 
+        // basic movement
         if(currentPath != null && currentPath.Length > 0)
         {
             float totalDistance = GlobalPosition.DistanceTo(currentPath[0]);
@@ -166,6 +241,16 @@ public class Enemy : KinematicBody2D
             }
             Rpc("clientUpdateEnemyPos", GlobalPosition.x, GlobalPosition.y);
         }
+        
+        if (currentAtk == null && currentTarget == null && currentPath == null)
+        {
+            if (InitialPosition.DistanceTo(GlobalPosition) > 5)
+            {
+                GD.Print($"reset to {InitialPosition} distance {InitialPosition.DistanceTo(GlobalPosition)}");
+                Vector2[] fullPath = nav.GetSimplePath(GlobalPosition, InitialPosition);
+                currentPath = shiftArray(fullPath);
+            }
+        }
     }
 
     private Vector2[] shiftArray(Vector2[] src)
@@ -179,6 +264,12 @@ public class Enemy : KinematicBody2D
         Array.Copy(src, 1, target, 0, src.Length - 1);
 
         return target;
+    }
+
+    public void ResetHealth()
+    {
+        health = 100;
+        Rpc("SetHealth", health);
     }
 
     public void SubHealth(int dmg)
@@ -197,6 +288,9 @@ public class Enemy : KinematicBody2D
     public void SetHealth(int newHealth)
     {
         health = newHealth;
+
+        ShaderMaterial shaderMat = (ShaderMaterial)GetNode<ColorRect>("OuterHealthbar/InnerHealthbar").Material;
+        shaderMat.SetShaderParam("HealthFactor", (float)health / 100f);
     }
 
     [Remote]

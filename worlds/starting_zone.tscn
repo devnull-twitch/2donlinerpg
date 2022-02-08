@@ -610,3 +610,9 @@ DropTable = ExtResource( 3 )
 [node name="SpawnerRight" parent="NetworkManager/EnemyManager" instance=ExtResource( 2 )]
 position = Vector2( -399, 297 )
 DropTable = ExtResource( 3 )
+
+[node name="ZoneStart" type="Node2D" parent="."]
+position = Vector2( -1397, 1 )
+__meta__ = {
+"_edit_group_": true
+}
