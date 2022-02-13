@@ -11,9 +11,18 @@ public class EnemySpawner : Node2D
     public Resource EnemyTemplate;
 
     [Export]
-    public LootTable DropTable; 
+    public LootTable DropTable;
 
-    public string Somethging;
+    public Vector2[] patrolPoints;
+
+    public override void _Ready()
+    {
+        Path2D patrolPath = GetNodeOrNull<Path2D>("Patrol");
+        if (patrolPath != null)
+        {
+            patrolPoints = patrolPath.Curve.GetBakedPoints();
+        }
+    }
 
     public void NetworkReady()
     {
@@ -55,6 +64,7 @@ public class EnemySpawner : Node2D
             target.GlobalPosition = new Vector2(GlobalPosition.x, GlobalPosition.y);
             target.InitialPosition = new Vector2(GlobalPosition.x, GlobalPosition.y);
             target.DropTable = DropTable;
+            target.patrolPoints = patrolPoints;
             target.ResetHealth();
         }
         else

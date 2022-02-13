@@ -5,204 +5,128 @@ using System.Text;
 
 public class Loader : Node
 {
-    private string baseURL;
-    private string token;
+    public string waitGameToken;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        ConfigFile cf = new ConfigFile();
-        Error err = cf.Load("res://networking.cfg");
+        ConfigFile tokenCfg = new ConfigFile();
+        Error err = tokenCfg.Load("user://jwt.cfg");
         if (err != Error.Ok)
         {
-            GD.Print($"unable to parse networking.cfg: {err}");
+            EnableTwitchLoginBtn();
+        }
+        else 
+        {
+            string token = (string)tokenCfg.GetValue("user", "token");
+            if (token.Length <= 0)
+            {
+                EnableTwitchLoginBtn();
+                return;
+            }
+            
+            LoadCharsAndStart(token);
+        }
+    }
+
+    public void EnableTwitchLoginBtn()
+    {
+        Button LoginBtn = GetNode<Button>("UiLayer/CenterContainer/MarginContainer/CenterContainer/PanelContainer/LoginBox/LoginBtn");
+        LoginBtn.Connect("button_down", this, nameof(StartLogin));
+        LoginBtn.Disabled = false;
+    }
+
+    public void StartLogin()
+    {
+        GetNode<Label>("UiLayer/CenterContainer/MarginContainer/CenterContainer/PanelContainer/LoginBox/StatusLabel").Text = "Loading game token . . .";
+        HttpWorker twStartLoader = new HttpWorker();
+        twStartLoader.Setup(HTTPClient.Method.Post, "/rpg/twitch/start", "", "");
+        twStartLoader.MakeRequest();
+
+        if (twStartLoader.LastResponse.Length <= 0)
+        {
+            GetNode<Label>("UiLayer/CenterContainer/MarginContainer/CenterContainer/PanelContainer/LoginBox/StatusLabel").Text = "Login error.\nTry again later.";
             return;
         }
 
-        baseURL = (string)cf.GetValue("gameapi", "base_url");
-
-        GetNode<Button>("/root/Menu/UiLayer/CenterContainer/LoginBox/LoginBtn").Connect("button_down", this, nameof(DoLogin));
-        GetNode<Button>("/root/Menu/UiLayer/CenterContainer/LoginBox/SwitchRegBtn").Connect("button_down", this, nameof(SwitchToReg));
-        GetNode<Button>("/root/Menu/UiLayer/CenterContainer/RegistrationBox/RegBtn").Connect("button_down", this, nameof(DoRegistration));
-        GetNode<Button>("/root/Menu/UiLayer/CenterContainer/RegistrationBox/SwitchLoginBtn").Connect("button_down", this, nameof(SwitchToLogin));
-        GetNode<Button>("/root/Menu/UiLayer/CenterContainer/CharacterListing/SwitchCharCreateBtn").Connect("button_down", this, nameof(SwitchToCreateCharacter));
-        GetNode<Button>("/root/Menu/UiLayer/CenterContainer/CharacterCreateBox/CreateBtn").Connect("button_down", this, nameof(DoCreateCharacter));
-        GetNode<Button>("/root/Menu/UiLayer/CenterContainer/CharacterCreateBox/CancelBtn").Connect("button_down", this, nameof(SwitchToCreateListing));
+        GD.Print(twStartLoader.LastResponse);
+        JSONParseResult authJson = JSON.Parse(twStartLoader.LastResponse);
+        Dictionary authData = (Dictionary)authJson.Result;
+        LineEdit authUrlField = GetNode<LineEdit>("UiLayer/CenterContainer/MarginContainer/CenterContainer/PanelContainer/LoginBox/AuthURL");
+        authUrlField.Text = (string)authData["auth_url"];
+        authUrlField.Visible = true;
+        waitGameToken = (string)authData["wait_token"];
         
-        GetNode("LoginRequest").Connect("request_completed", this, nameof(OnLoginRequestCompleted));
-        GetNode("CharacterRequest").Connect("request_completed", this, nameof(OnCharacterRequestCompleted));
-        GetNode("PlayRequest").Connect("request_completed", this, nameof(OnPlayRequestCompleted));
-        GetNode("RegistrationRequest").Connect("request_completed", this, nameof(OnRegistrationRequestCompleted));
-        GetNode("ChracterCreateRequest").Connect("request_completed", this, nameof(OnChracterCreateRequestCompleted));
+        Button RefreshBtn = GetNode<Button>("UiLayer/CenterContainer/MarginContainer/CenterContainer/PanelContainer/LoginBox/RefreshBtn");
+        RefreshBtn.Connect("button_down", this, nameof(DoRefresh));
+        RefreshBtn.Visible = true;
     }
 
-    public void DoLogin()
+    public void DoRefresh()
     {
-        Dictionary<string, string> pl = new Dictionary<string, string>();
-        pl["Username"] = GetNode<LineEdit>("/root/Menu/UiLayer/CenterContainer/LoginBox/UsernameInput").Text;
-        pl["Password"] = GetNode<LineEdit>("/root/Menu/UiLayer/CenterContainer/LoginBox/PasswordInput").Text;
+        GetNode<Button>("UiLayer/CenterContainer/MarginContainer/CenterContainer/PanelContainer/LoginBox/RefreshBtn").Disabled = true;
+        
+        HttpWorker twCheckLoader = new HttpWorker();
+        twCheckLoader.Setup(HTTPClient.Method.Get, $"/rpg/twitch/check?gametoken={waitGameToken}", "", "");
+        twCheckLoader.MakeRequest();
 
-        string jsonString = JSON.Print(pl);
-
-        HTTPRequest httpRequest = GetNode<HTTPRequest>("LoginRequest");
-        httpRequest.Request($"{baseURL}/account/login", null, false, HTTPClient.Method.Post, jsonString);
-    }
-
-    public void SwitchToReg()
-    {
-        GetNode<BoxContainer>("/root/Menu/UiLayer/CenterContainer/LoginBox").Visible = false;
-        GetNode<BoxContainer>("/root/Menu/UiLayer/CenterContainer/RegistrationBox").Visible = true;
-    }
-
-    public void SwitchToLogin()
-    {
-        GetNode<BoxContainer>("/root/Menu/UiLayer/CenterContainer/RegistrationBox").Visible = false;
-        GetNode<BoxContainer>("/root/Menu/UiLayer/CenterContainer/LoginBox").Visible = true;
-    }
-
-    public void SwitchToCreateCharacter()
-    {
-        GetNode<BoxContainer>("/root/Menu/UiLayer/CenterContainer/CharacterListing").Visible = false;
-        GetNode<BoxContainer>("/root/Menu/UiLayer/CenterContainer/CharacterCreateBox").Visible = true;
-    }
-
-    public void SwitchToCreateListing()
-    {
-        GetNode<BoxContainer>("/root/Menu/UiLayer/CenterContainer/CharacterListing").Visible = true;
-        GetNode<BoxContainer>("/root/Menu/UiLayer/CenterContainer/CharacterCreateBox").Visible = false;
-    }
-
-    public void DoRegistration()
-    {
-        Dictionary<string, string> pl = new Dictionary<string, string>();
-        pl["username"] = GetNode<LineEdit>("/root/Menu/UiLayer/CenterContainer/RegistrationBox/UsernameInput").Text;
-
-        string jsonString = JSON.Print(pl);
-
-        HTTPRequest httpRequest = GetNode<HTTPRequest>("RegistrationRequest");
-        httpRequest.Request($"{baseURL}/account", null, false, HTTPClient.Method.Post, jsonString);
-    }
-
-    public void DoCreateCharacter()
-    {
-        Dictionary<string, string> pl = new Dictionary<string, string>();
-        pl["name"] = GetNode<LineEdit>("/root/Menu/UiLayer/CenterContainer/CharacterCreateBox/CharacterNameInput").Text;
-        pl["base_color"] = GetNode<ColorPickerButton>("/root/Menu/UiLayer/CenterContainer/CharacterCreateBox/BaseColorInput").Color.ToHtml();
-
-        string jsonString = JSON.Print(pl);
-
-        HTTPRequest httpRequest = GetNode<HTTPRequest>("ChracterCreateRequest");
-        string[] requestHeaders = new string[1];
-        requestHeaders[0] = $"Authorization: Bearer {token}";
-        httpRequest.Request($"{baseURL}/game/characters", requestHeaders, false, HTTPClient.Method.Post, jsonString);
-    }
-
-    public void OnLoginRequestCompleted(int result, int response_code, string[] headers, byte[] body)
-    {
-        if (response_code != 200)
+        if (twCheckLoader.LastResponse.Length <= 0)
         {
-            GD.Print("login error");
+            GetNode<Button>("UiLayer/CenterContainer/MarginContainer/CenterContainer/PanelContainer/LoginBox/RefreshBtn").Disabled = false;
             return;
         }
 
-        token = Encoding.UTF8.GetString(body);
-        GD.Print($"player login token={token}");
+        ConfigFile newUserCfg = new ConfigFile();
+        newUserCfg.SetValue("user", "token", twCheckLoader.LastResponse);
+        Error err = newUserCfg.Save("user://jwt.cfg");
+        if (err != Error.Ok) {
+            GD.Print($"unable to save jwt: {err}");
+        }
 
-        HTTPRequest httpRequest = GetNode<HTTPRequest>("CharacterRequest");
-        string[] requestHeaders = new string[1];
-        requestHeaders[0] = $"Authorization: Bearer {token}";
-        httpRequest.Request($"{baseURL}/game/characters", requestHeaders, false, HTTPClient.Method.Get, "");
+        LoadCharsAndStart(twCheckLoader.LastResponse);
     }
 
-    public void OnRegistrationRequestCompleted(int result, int response_code, string[] headers, byte[] body)
+    public void LoadCharsAndStart(string token)
     {
-        if (response_code != 201)
+        HttpWorker charLoader = new HttpWorker();
+        charLoader.Setup(HTTPClient.Method.Get, "/rpg/game/characters", "", token);
+        charLoader.MakeRequest();
+        
+        if (charLoader.LastResponse.Length <= 0)
         {
-            GD.Print($"account registration error {response_code}");
+            EnableTwitchLoginBtn();
             return;
         }
 
-        SwitchToLogin();
-    }
-
-    public void OnCharacterRequestCompleted(int result, int response_code, string[] headers, byte[] body)
-    {
-        if (response_code != 200)
-        {
-            GD.Print($"character loading error {response_code}");
-            return;
-        }
-
-        GD.Print(Encoding.UTF8.GetString(body));
-        JSONParseResult json = JSON.Parse(Encoding.UTF8.GetString(body));
+        JSONParseResult json = JSON.Parse(charLoader.LastResponse);
         Dictionary respData = (Dictionary)json.Result;
         Godot.Collections.Array listOfChars = (Godot.Collections.Array)respData["chars"];
-        GetNode<VBoxContainer>("/root/Menu/UiLayer/CenterContainer/LoginBox").Visible = false;
-        VBoxContainer listingNode = GetNodeOrNull<VBoxContainer>("/root/Menu/UiLayer/CenterContainer/CharacterListing");
-        listingNode.Visible = true;
 
-        if (listOfChars == null)
+        if (listOfChars.Count <= 0)
         {
-            return;
-        }
-        
-        foreach (Dictionary charInfo in listOfChars)
-        {
-            Button charButton = new Button();
-            Godot.Collections.Array btnParams = new Godot.Collections.Array();
-            btnParams.Add((string)charInfo["name"]);
-            charButton.Connect("button_down", this, nameof(OnCharacterSelected), btnParams);
-            charButton.Text = (string)charInfo["name"];
-
-            listingNode.AddChild(charButton);
-        }
-    }
-
-    public void OnChracterCreateRequestCompleted(int result, int response_code, string[] headers, byte[] body)
-    {
-        if (response_code != 201)
-        {
-            GD.Print($"account registration error {response_code}");
+            GetNode<Label>("UiLayer/CenterContainer/MarginContainer/CenterContainer/PanelContainer/LoginBox/StatusLabel").Text = "Missing character.\nAsk for support.";
             return;
         }
 
-        GetNode<BoxContainer>("/root/Menu/UiLayer/CenterContainer/CharacterCreateBox").Visible = false;
+        Dictionary charData = (Dictionary)listOfChars[0];
+        string charName = (string)charData["name"];
 
-        HTTPRequest httpRequest = GetNode<HTTPRequest>("CharacterRequest");
-        string[] requestHeaders = new string[1];
-        requestHeaders[0] = $"Authorization: Bearer {token}";
-        httpRequest.Request($"{baseURL}/game/characters", requestHeaders, false, HTTPClient.Method.Get, "");
-    }
+        HttpWorker playLoader = new HttpWorker();
+        playLoader.Setup(HTTPClient.Method.Post, $"/rpg/game/play?selected_char={charName}", "", token);
+        playLoader.MakeRequest();
 
-    public void OnCharacterSelected(string name)
-    {
-        HTTPRequest httpRequest = GetNode<HTTPRequest>("PlayRequest");
-        string[] requestHeaders = new string[1];
-        requestHeaders[0] = $"Authorization: Bearer {token}";
-
-        Dictionary<string, string> pl = new Dictionary<string, string>();
-        pl["Character"] = name;
-        string jsonString = JSON.Print(pl);
-
-        httpRequest.Request($"{baseURL}/game/play?selected_char={name}", requestHeaders, false, HTTPClient.Method.Post, jsonString);
-    }
-
-    public void OnPlayRequestCompleted(int result, int response_code, string[] headers, byte[] body)
-    {
-        if (response_code != 200)
+        if (playLoader.LastResponse.Length <= 0)
         {
-            GD.Print("game server fetch error");
+            GetNode<Label>("UiLayer/CenterContainer/MarginContainer/CenterContainer/PanelContainer/LoginBox/StatusLabel").Text = "Server load error.\nTry again later.";
             return;
         }
 
-        GD.Print(Encoding.UTF8.GetString(body));
-
-        JSONParseResult json = JSON.Parse(Encoding.UTF8.GetString(body));
-        Dictionary respData = (Dictionary)json.Result;
-        string charName = (string)respData["character_name"];
-        string scene = (string)respData["scene"];
-        string ip = (string)respData["ip"];
-        int port = (int)((Single)respData["port"]);
+        JSONParseResult playJson = JSON.Parse(playLoader.LastResponse);
+        Dictionary playData = (Dictionary)playJson.Result;
+        string playCharName = (string)playData["character_name"];
+        string scene = (string)playData["scene"];
+        string ip = (string)playData["ip"];
+        int port = (int)((Single)playData["port"]);
 
         PackedScene packedGS = (PackedScene)ResourceLoader.Load($"res://scenes/Game.tscn");
         Node gameScene = packedGS.Instance();
@@ -212,7 +136,7 @@ public class Loader : Node
         Node sceneNode = ps.Instance();
         GetNode<Node2D>("/root/Game/World").AddChild(sceneNode);
 
-        gameScene.GetNode<PlayerClient>("PlayerClient").StartWithToken(token, charName, ip, port);
+        gameScene.GetNode<PlayerClient>("PlayerClient").StartWithToken(token, playCharName, ip, port);
         
         GetTree().Root.GetNode<Node2D>("Menu").QueueFree();
     }

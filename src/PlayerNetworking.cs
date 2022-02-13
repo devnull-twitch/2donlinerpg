@@ -417,7 +417,7 @@ public class PlayerNetworking : KinematicBody2D
         string jsonString = JSON.Print(pl);
 
         HttpWorker httpOffThread = new HttpWorker();
-        httpOffThread.Setup(HTTPClient.Method.Delete, "/character/inventory", jsonString);
+        httpOffThread.Setup(HTTPClient.Method.Delete, "/rpg/character/inventory", jsonString, "");
 
         
 
@@ -430,9 +430,79 @@ public class PlayerNetworking : KinematicBody2D
 
         jsonString = JSON.Print(pl);
 
-        httpOffThread.Setup(HTTPClient.Method.Put, "/character/inventory", jsonString);
+        httpOffThread.Setup(HTTPClient.Method.Put, "/rpg/character/inventory", jsonString, "");
 
         Thread httpThread = new Thread();
         httpThread.Start(httpOffThread, "MakeRequest");
+    }
+
+    [Remote]
+    public void EnableTrade()
+    {
+        GridContainer tradeContainer = GetNode<GridContainer>("/root/Game/UiLayer/TradeDialog/GridContainer");
+        GridContainer inventoryPanel = GetNode<GridContainer>("/root/Game/UiLayer/Inventory/Split/Listing");
+        foreach (ItemLabel invItemLabel in inventoryPanel.GetChildren())
+        {
+            PackedScene itemLabelPanel = GD.Load<PackedScene>("res://prefabs/ItemLabelPanel.tscn");
+            ItemLabel panel = (ItemLabel)itemLabelPanel.Instance();
+            panel.Item = invItemLabel.Item;
+            panel.InTradeMode = true;
+
+            tradeContainer.AddChild(panel);
+        }
+
+        GetNode<WindowDialog>("/root/Game/UiLayer/TradeDialog").Popup_();
+    }
+
+    [Remote]
+    public void DisableTrade()
+    {
+        GridContainer tradeContainer = GetNode<GridContainer>("/root/Game/UiLayer/TradeDialog/GridContainer");
+        foreach (ItemLabel tradeItems in tradeContainer.GetChildren())
+        {
+            tradeItems.QueueFree();
+        }
+
+        GetNode<WindowDialog>("/root/Game/UiLayer/TradeDialog").Hide();
+    }
+
+    [Remote]
+    public void sellInventoryItem(int itemID)
+    {
+        for (int index = 0; index < serverInventory.Count; index++)
+        {
+            InventoryItem i = serverInventory[index];
+            if (i.ItemID == itemID)
+            {
+                int ownerID = int.Parse(Name);
+                GetNode<InventoryManager>("InventoryManager").RpcId(ownerID, "clientRemoveItem", itemID);
+
+                serverInventory.RemoveAt(index);
+
+                // make http call to remove itemid and secondaryItemQuantity
+                Godot.Collections.Dictionary<string, string> pl = new Godot.Collections.Dictionary<string, string>();
+                pl["account"] = Account;
+                pl["character"] = Character;
+                pl["item_id"] = $"{itemID}";
+                pl["quantity"] = $"{i.Quantity}";
+
+                string jsonString = JSON.Print(pl);
+
+                HttpWorker httpOffThread = new HttpWorker();
+                httpOffThread.Setup(HTTPClient.Method.Delete, "/rpg/character/inventory", jsonString, "");
+
+                Thread httpThread = new Thread();
+                httpThread.Start(httpOffThread, "MakeRequest");
+
+                HttpWorker pointbotHttpWorker = new HttpWorker();
+                pointbotHttpWorker.Setup(HTTPClient.Method.Post, $"/bot/points/8TpaXItZuRJYOjnZZ10o/{Account.ToLower()}/10", "", "");
+                pointbotHttpWorker.BaseURL = "http://devnullga.me:31001";
+                
+                Thread pointbotHttpThread = new Thread();
+                pointbotHttpThread.Start(pointbotHttpWorker, "MakeRequest");
+
+                return;
+            }
+        }
     }
 }

@@ -23,24 +23,6 @@ public class NetworkManager : Node
                 return;
             }
         }
-
-        ConfigFile cf = new ConfigFile();
-        Error err = cf.Load("res://networking.cfg");
-        if (err != Error.Ok)
-        {
-            GD.Print($"unable to parse networking.cfg: {err}");
-            return;
-        }
-
-        string ip = (string)cf.GetValue("gameserver", "ip");
-        int clientPort = (int)cf.GetValue("gameserver", "port");
-        string token = (string)cf.GetValue("gameserver", "token");
-        string character = (string)cf.GetValue("gameserver", "character");
-
-        if (ip != "" && clientPort > 0)
-        {
-            GetNode<PlayerClient>("/root/Game/PlayerClient").StartWithToken(token, character, ip, clientPort);
-        }
     }
 
     public void Start(int port)

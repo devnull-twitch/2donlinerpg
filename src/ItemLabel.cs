@@ -5,6 +5,8 @@ public class ItemLabel : Panel
 {
     private InventoryItem item;
 
+    public bool InTradeMode = false;
+
     public InventoryItem Item {
         get {
             return item;

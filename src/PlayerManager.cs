@@ -83,7 +83,7 @@ public class PlayerManager : Node
         string svcCredentials = Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes("gameserver:" + serverPassword));
         string[] requestHeaders = new string[1];
         requestHeaders[0] = $"Authorization: Basic {svcCredentials}";
-        invLoaderReq.Request($"{baseURL}/character/inventory?account={accountName}&char={characterName}", requestHeaders, false, HTTPClient.Method.Get, "");
+        invLoaderReq.Request($"{baseURL}/rpg/character/inventory?account={accountName}&char={characterName}", requestHeaders, false, HTTPClient.Method.Get, "");
 
         pn.Rpc("clientSetStats", pn.GetHealth(), pn.GetArmor());
     }
@@ -99,7 +99,7 @@ public class PlayerManager : Node
         string jsonString = JSON.Print(pl);
 
         HttpWorker httpOffThread = new HttpWorker();
-        httpOffThread.Setup(HTTPClient.Method.Post, "/character/inventory", jsonString);
+        httpOffThread.Setup(HTTPClient.Method.Post, "/rpg/character/inventory", jsonString, "");
 
         Thread httpThread = new Thread();
         httpThread.Start(httpOffThread, "MakeRequest");
@@ -119,7 +119,7 @@ public class PlayerManager : Node
         string svcCredentials = Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes("gameserver:" + serverPassword));
         string[] requestHeaders = new string[1];
         requestHeaders[0] = $"Authorization: Basic {svcCredentials}";
-        GetNode<HTTPRequest>("InventorySaver").Request($"{baseURL}/character/inventory/slot_change", requestHeaders, false, HTTPClient.Method.Post, jsonString);
+        GetNode<HTTPRequest>("InventorySaver").Request($"{baseURL}/rpg/character/inventory/slot_change", requestHeaders, false, HTTPClient.Method.Post, jsonString);
     }
 
     public void onInventoryFetched(int result, int response_code, string[] headers, byte[] body)

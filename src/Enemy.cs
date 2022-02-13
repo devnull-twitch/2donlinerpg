@@ -40,6 +40,8 @@ public class Enemy : KinematicBody2D
 
     private float lastAtk;
 
+    public Vector2[] patrolPoints;
+
     public override void _Ready()
     {
         isServer = isServer = GetTree().IsNetworkServer();
@@ -229,8 +231,12 @@ public class Enemy : KinematicBody2D
             }
 
             Vector2 pathVector = GlobalPosition.LinearInterpolate(currentPath[0], 100 / totalDistance);
-            MoveAndSlide(pathVector - GlobalPosition, Vector2.Up, false, 4, 0);
+            Vector2 relMovement = pathVector - GlobalPosition;
+            MoveAndSlide(relMovement, Vector2.Up, false, 4, 0);
             KinematicCollision2D c = GetLastSlideCollision();
+
+            RpcUnreliable("clientSetAnimationState", relMovement.x);
+
             if (c != null && c.Travel.Length() < 0.08)
             {
                 GD.Print("unstuck enemy");
@@ -239,16 +245,34 @@ public class Enemy : KinematicBody2D
                 Vector2 toCol = GlobalPosition.LinearInterpolate(radomPushAnchor, 1);
                 MoveAndCollide(toCol.Inverse() * 300);
             }
-            Rpc("clientUpdateEnemyPos", GlobalPosition.x, GlobalPosition.y);
+            RpcUnreliable("clientUpdateEnemyPos", GlobalPosition.x, GlobalPosition.y);
         }
         
         if (currentAtk == null && currentTarget == null && currentPath == null)
         {
-            if (InitialPosition.DistanceTo(GlobalPosition) > 5)
+            if (patrolPoints == null)
             {
-                GD.Print($"reset to {InitialPosition} distance {InitialPosition.DistanceTo(GlobalPosition)}");
-                Vector2[] fullPath = nav.GetSimplePath(GlobalPosition, InitialPosition);
-                currentPath = shiftArray(fullPath);
+                if (InitialPosition.DistanceTo(GlobalPosition) > 5)
+                {
+                    GD.Print($"reset to {InitialPosition} distance {InitialPosition.DistanceTo(GlobalPosition)}");
+                    Vector2[] fullPath = nav.GetSimplePath(GlobalPosition, InitialPosition);
+                    currentPath = shiftArray(fullPath);
+                }
+                else
+                {
+                    if (GetNode<AnimatedSprite>("AnimatedSprite").Animation != "Idle")
+                    {
+                        GetNode<AnimatedSprite>("AnimatedSprite").Animation = "Idle";
+                    }
+                }
+            }
+            else
+            {
+                currentPath = new Vector2[patrolPoints.Length];
+                for(int i = 0; i < patrolPoints.Length; i++)
+                {
+                    currentPath[i] = patrolPoints[i];
+                }
             }
         }
     }
@@ -324,5 +348,23 @@ public class Enemy : KinematicBody2D
 
         mainNode.AddChild(dropItem);
         dropItem.NetworkReady();
+    }
+
+    [Remote]
+    public void clientSetAnimationState(float x)
+    {
+        AnimatedSprite animSprite = GetNode<AnimatedSprite>("AnimatedSprite");
+        if (x != 0 && animSprite.Animation != "Move")
+        {
+            animSprite.Animation = "Move";
+        }
+        if (x > 0)
+        {
+            animSprite.FlipH = true;
+        }
+        else
+        {
+            animSprite.FlipH = false;
+        }
     }
 }

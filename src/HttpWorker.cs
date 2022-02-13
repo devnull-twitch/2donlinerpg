@@ -11,11 +11,15 @@ public class HttpWorker : Godot.Object
 
     private Queue<string> jsons = new Queue<string>();
 
-    private string baseURL;
+    public string BaseURL;
 
     private string serverPassword;
 
-    public void Setup(HTTPClient.Method method, string path, string jsonString)
+    private string jwt;
+
+    public string LastResponse = "";
+
+    public void Setup(HTTPClient.Method method, string path, string jsonString, string userJwt)
     {
         ConfigFile cf = new ConfigFile();
         Error err = cf.Load("res://networking.cfg");
@@ -25,8 +29,9 @@ public class HttpWorker : Godot.Object
             return;
         }
 
-        this.baseURL = (string)cf.GetValue("gameapi", "base_url");
+        this.BaseURL = (string)cf.GetValue("gameapi", "base_url");
         this.serverPassword = (string)cf.GetValue("gameapi", "server_auth");
+        this.jwt = userJwt;
 
         this.methods.Enqueue(method);
         this.paths.Enqueue(path);
@@ -37,12 +42,25 @@ public class HttpWorker : Godot.Object
     {
         while (paths.Count > 0)
         {
+            bool useSsl = false;
             int port = 80;
-            baseURL = baseURL.Replace("http://", "");
-            string[] baseURLParts = baseURL.Split(":");
-            port = int.Parse(baseURLParts[1]);
+            if (BaseURL.Contains("http://")) 
+            {
+                BaseURL = BaseURL.Replace("http://", "");
+            }
+            if (BaseURL.Contains("https://")) 
+            {
+                port = 443;
+                useSsl = true;
+                BaseURL = BaseURL.Replace("https://", "");
+            }
+            string[] baseURLParts = BaseURL.Split(":");
+            if (baseURLParts.Length > 1)
+            {
+                port = int.Parse(baseURLParts[1]);
+            }
             HTTPClient http = new HTTPClient();
-            Error err = http.ConnectToHost(baseURLParts[0], port);
+            Error err = http.ConnectToHost(baseURLParts[0], port, useSsl, false);
             if (err != Error.Ok) 
             {
                 GD.Print($"Inventory save http setup error: {err}");
@@ -65,9 +83,19 @@ public class HttpWorker : Godot.Object
             string path = paths.Dequeue();
             string json = jsons.Dequeue();
 
-            string svcCredentials = Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes("gameserver:" + serverPassword));
-            string[] requestHeaders = new string[1];
-            requestHeaders[0] = $"Authorization: Basic {svcCredentials}";
+            string[] requestHeaders = null;
+            if (serverPassword != "")
+            {
+                string svcCredentials = Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes("gameserver:" + serverPassword));
+                requestHeaders = new string[1];
+                requestHeaders[0] = $"Authorization: Basic {svcCredentials}";
+            }
+            if (jwt != "")
+            {
+                requestHeaders = new string[1];
+                requestHeaders[0] = $"Authorization: Bearer {jwt}";
+            }
+
             err = http.Request(method, path, requestHeaders, json);
             if (err != Error.Ok) 
             {
@@ -81,6 +109,26 @@ public class HttpWorker : Godot.Object
             }
 
             GD.Print($"http done: {http.GetStatus()}");
+
+            if (http.HasResponse())
+            {
+                List<byte> rb = new List<byte>();
+                while (http.GetStatus() == HTTPClient.Status.Body)
+                {
+                    http.Poll();
+                    byte[] chunk = http.ReadResponseBodyChunk();
+                    if (chunk.Length == 0)
+                    {
+                        OS.DelayMsec(500);
+                    }
+                    else
+                    {
+                        rb.AddRange(chunk);
+                    }
+                }
+
+                LastResponse = Encoding.UTF8.GetString(rb.ToArray());
+            }   
         }
     }
 }
