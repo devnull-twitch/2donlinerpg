@@ -87,7 +87,7 @@ public class Enemy : KinematicBody2D
 
     public void OnPlayerEnteredAttack(Node2D body)
     {
-        if (!(body is PlayerNetworking))
+        if (!IsInstanceValid(body) || !(body is PlayerNetworking))
         {
             return;
         }
