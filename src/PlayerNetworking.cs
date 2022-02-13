@@ -496,7 +496,7 @@ public class PlayerNetworking : KinematicBody2D
 
                 HttpWorker pointbotHttpWorker = new HttpWorker();
                 pointbotHttpWorker.Setup(HTTPClient.Method.Post, $"/bot/points/8TpaXItZuRJYOjnZZ10o/{Account.ToLower()}/10", "", "");
-                pointbotHttpWorker.BaseURL = "http://devnullga.me:31001";
+                pointbotHttpWorker.BaseURL = "https://devnullga.me";
                 
                 Thread pointbotHttpThread = new Thread();
                 pointbotHttpThread.Start(pointbotHttpWorker, "MakeRequest");
