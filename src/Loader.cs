@@ -25,7 +25,7 @@ public class Loader : Node
                 return;
             }
             
-            LoadCharsAndStart(token);
+            CallDeferred(nameof(OnStartupLogin), token);   
         }
     }
 
@@ -139,5 +139,10 @@ public class Loader : Node
         gameScene.GetNode<PlayerClient>("PlayerClient").StartWithToken(token, playCharName, ip, port);
         
         GetTree().Root.GetNode<Node2D>("Menu").QueueFree();
+    }
+
+    public void OnStartupLogin(string token)
+    {
+        LoadCharsAndStart(token);
     }
 }
